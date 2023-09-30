@@ -1,0 +1,54 @@
+{% extends "base.html" %} {% block title %}*{{ constellation.name }}{% endblock %} {% block theme %}dark{% endblock %}
+{% block body %}
+<h1>*{{ constellation.name }}</h1>
+<h4>{{ constellation.description }}</h4>
+<h5>Owned by <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=constellation.owner_name) }}">@{{ constellation.owner_name }}</a> {% if constellation.owner.is_verified %}<span title="This user is verified.">✅</span>{% endif %}</h5>
+{% if constellation.owner_name == current_user.id%}
+<div class="btn-group btn-group-sm mb-2" role="group" aria-label="Basic outlined example">
+  <a class="btn btn-outline-secondary" href="{{ url_for('edit_constellation', name=constellation.name) }}" title="Settings">⚙️</a>
+  {#<button type="button" class="btn btn-outline-danger" title="Report constellation">🚩</button>#}
+</div>
+{% endif %}
+<form class="mb-2" method="post" enctype="multipart/form-data">
+  <div class="mb-2">
+    <textarea type="text" class="form-control" id="exampleInputEmail1" placeholder="{{ ['What a nice day!', 'Share your thoughts!', 'Ready to tell something? 😊', 'Tell *'+ constellation.name + ' what\'s happening today']|random }}" aria-describedby="emailHelp" name="message_content" required></textarea>
+    <div id="emailHelp" class="form-text">You may send messages up to 4096 characters.</div>
+  </div>
+  {#
+  <div class="mb-2">
+    <input class="form-control" type="file" id="formFile" name="file" disabled>
+    <label for="formFile" class="form-text">You may upload files no larger than 2 megabytes. Only .png, .jpg, .jpeg, .webp, .gif files are allowed.</label>
+  </div>#}
+  <button type="submit" class="btn btn-primary">Post</button>
+</form>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Date</th>
+      <th scope="col">Author</th>
+      <th scope="col">Content</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for message in constellation.belonging_messages|reverse %}
+    <tr>
+      <th scope="row">TBA</th>
+      <td><a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=message.author_name) }}">@{{ message.author_name }}</a>{% if message.author.is_verified %} <span title="This user is verified.">✅</span>{% endif %}{% if message.author_name == constellation.owner_name %} <span title="This user owns this constellation.">👑</span>{% endif %}</td>
+      <td>{{ message.content }}</td>
+      <td>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
+          <a class="btn btn-outline-secondary" href="{{ url_for('message', uuid=message.uuid) }}" title="View post">👁️</a>
+          {% if message.author_name == current_user.id %}
+          <a class="btn btn-outline-secondary" href="{{ url_for('edit_message', uuid=message.uuid) }}" title="Edit post">✏️</a>
+          {% endif %}
+          {% if message.author_name == current_user.id or constellation.owner_name == current_user.id %}
+          <a class="btn btn-outline-danger" href="{{ url_for('delete_message', uuid=message.uuid) }}" title="Delete post">🗑️</a>
+          {% endif %}
+          {#<button type="button" class="btn btn-outline-danger" title="Report user">🚩</button>#}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

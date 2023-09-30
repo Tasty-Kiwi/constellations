@@ -1,0 +1,40 @@
+{% extends "base.html" %} {% block title %}Create a new one{% endblock %} {% block theme %}dark{%endblock %} {% block body %}
+<h1>Create a new constellation</h1>
+<form method="post">
+  <div class="mb-3">
+    <label for="constellation_name" class="form-label">Constellation name</label>
+    <div class="input-group">
+      <span class="input-group-text">*</span>
+      <input
+        type="text"
+        class="form-control"
+        aria-describedby="basic-addon1"
+        id="constellation_name"
+        name="constellation_name"
+        required />
+    </div>
+    <div class="form-text">
+      The name must be alphanumberical lowercase. The only special character allowed is
+      "<code>.</code>". The name must not be longer than 16 characters. You may not change the name afterwards.
+    </div>
+  </div>
+  <div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label">Description</label>
+    <input
+      type="text"
+      class="form-control"
+      aria-describedby="basic-addon1"
+      name="description"
+      required />
+    <div class="form-text">The description must not be longer than 256 characters. This option can be changed later.</div>
+  </div>
+  <div class="mb-3 form-check">
+    <input type="checkbox" class="form-check-input" name="is_private" />
+    <label class="form-check-label" for="exampleCheck1">Is private?</label>
+    <div class="form-text">
+      Private constellations are not published to the list. This option can be changed later.
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

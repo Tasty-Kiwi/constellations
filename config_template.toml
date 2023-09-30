@@ -1,0 +1,6 @@
+secret_key = "SECRET_KEY" # import secrets; secrets.token_hex()
+upload_folder = "./uploads/"
+sqlalchemy_database_uri = "sqlite:///constellations.db"
+
+allowed_extensions = ["png", "jpg", "jpeg", "webp", "gif"]
+max_content_length = 2000000 # 2 MB

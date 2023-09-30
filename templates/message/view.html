@@ -1,0 +1,20 @@
+{% extends "base.html" %} {% block title %}Message by @{{ message.author_name }}{% endblock %} {% block theme %}dark{% endblock %}
+{% block body %}
+<div class="container">
+  <h3>
+    <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=message.author_name) }}">@{{ message.author_name }}</a>{% if message.author.is_verified %} <span title="This user is verified.">✅</span>{% endif %}{% if message.author_name == message.constellation.owner_name %} <span title="This user owns this constellation.">👑</span>{% endif %}
+    ➔
+    <a class="link-underline link-underline-opacity-0" href="{{ url_for('constellation', name=message.constellation_name) }}">*{{ message.constellation_name }}</a>
+  </h3>
+  {% if message.author_name == current_user.id or message.constellation.owner_name == current_user.id %}
+  <div class="btn-group btn-group-sm mb-3" role="group" aria-label="Basic outlined example">
+    {% if message.author_name == current_user.id %}
+    <a class="btn btn-outline-secondary" href="{{ url_for('edit_message', uuid=message.uuid) }}" title="Edit post">✏️</a>
+    {% endif %}
+    <a class="btn btn-outline-danger" href="{{ url_for('delete_message', uuid=message.uuid) }}" title="Delete post">🗑️</a>
+    {#<button type="button" class="btn btn-outline-danger" title="Report user">🚩</button>#}
+  </div>
+  {% endif %}
+  <p>{{ message.content }}</p>
+</div>
+{% endblock %}

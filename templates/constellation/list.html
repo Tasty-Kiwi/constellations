@@ -1,0 +1,22 @@
+{% extends "base.html" %} {% block title %}List{% endblock %} {% block theme %}dark{% endblock %}
+{% block body %}
+<h1>Public constellations 🌃</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Description</th>
+      <th scope="col">Owner</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for constellation in constellation_list|reverse %}
+      <tr>
+        <th scope="row"><a class="link-underline link-underline-opacity-0" href="{{ url_for('constellation', name=constellation.name) }}">*{{constellation.name}}</a></th>
+        <td>{{ constellation.description }}</td>
+        <td><a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=constellation.owner_name) }}">@{{ constellation.owner_name }}</a>{% if constellation.owner.is_verified %} <span title="This user is verified.">✅</span>{% endif %}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

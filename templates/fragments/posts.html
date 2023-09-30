@@ -1,0 +1,20 @@
+{% if cards != None %} {% for card in cards %}
+<div class="card mb-3 mx-auto" style="max-width: 60%">
+  <img src="https://placehold.co/300x200/" class="card-img-top" alt="Example image" />
+  <div class="card-body">
+    <h5 class="card-title">{{ card.title }}</h5>
+    <p class="card-text">{{ card.text }}</p>
+    {#<a href="#" class="btn btn-primary">Visit</a>#}
+  </div>
+</div>
+{% endfor %}
+<p
+  class="text-center text-secondary"
+  hx-get="/posts"
+  hx-trigger="intersect once delay:1.25s"
+  hx-swap="outerHTML">
+  Loading more posts...
+</p>
+{% else %}
+<p class="text-center text-secondary">No more posts found</p>
+{% endif %}

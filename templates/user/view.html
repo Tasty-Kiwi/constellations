@@ -1,0 +1,24 @@
+{% extends "base.html" %} {% block title %}@{{user.id}}{% endblock %} {% block theme %}dark{% endblock %}
+{% block body %}
+<img class="" style="max-width: 5%" src="https://api.dicebear.com/6.x/identicon/svg?seed={{user.name}}" />
+{% if user.is_verified %}
+<h1>@{{user.id}}<span title="This user is verified.">✅</span></h1>
+{% else %}
+<h1>@{{user.id}}</h1>
+{% endif %}
+<h2>Bio:</h2>
+<p>{{user.bio}}</p>
+{% if current_user.id == user.id %}
+<h2>User actions:</h2>
+<div class="btn-group mb-3">
+  <a class ="btn btn-outline-info" href="{{ url_for('logout') }}">Log out</a>
+  <a class ="btn btn-outline-info" href="{{ url_for('edit_user') }}">Edit</a>
+</div>
+{% endif %}
+<h2>Owned constellations:</h2>
+<ul>
+  {% for constellation in user.owned_constellations %}
+    <li><a class="link-underline link-underline-opacity-0" href="{{ url_for('constellation', name=constellation.name) }}">*{{ constellation.name }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %} {% block title %}Edit @{{ user.id }}{% endblock %} {% block theme %}dark{%endblock %} {% block body %}
+<h1>Edit @{{ user.id }}</h1>
+<form method="post" class="mb-3">
+  <div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label">Bio</label>
+    <input
+      type="text"
+      class="form-control"
+      aria-describedby="basic-addon1"
+      name="bio"
+      value="{{ user.bio }}"
+      required />
+    <div class="form-text">The bio must not be longer than 256 characters.</div>
+  </div>
+  {#<div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label">Email</label>
+    <input
+      type="text"
+      class="form-control"
+      aria-describedby="basic-addon1"
+      name="email"
+      value="{{ user.email }}"
+      required />
+  </div>#}
+  <button type="submit" class="btn btn-primary">Update</button>
+</form>
+<h3>Security</h3>
+<a class="btn btn-primary mb-5" href="{{ url_for('edit_password') }}">Edit password</a>
+<h3>Danger zone</h3>
+<a class="btn btn-danger" href="{{ url_for('delete_user') }}">Delete @{{ user.id }}</a>
+<div class="form-text">
+  This action is irreversible. All data, related your account, including messages and owned constellations, will be deleted.
+</div>
+{% endblock %}

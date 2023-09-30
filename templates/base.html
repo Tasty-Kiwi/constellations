@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.3"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.11"></script>
+    <title>🌃 Constellations - {% block title required %}{% endblock %}</title>
+  </head>
+  <body data-bs-theme="{% block theme required %}{% endblock %}">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary mb-2">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">🌃 Constellations</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('constellation_list') }}">Public constellations</a>
+            </li>
+            {#
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Constellations you're part of
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ url_for('constellation', name='kiwis') }}">*kiwis</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('constellation', name='ppac') }}">*ppac</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('constellation', name='pewpew') }}">*pewpew</a></li>
+              </ul>
+            </li>#}
+          </ul>
+          <div class="d-flex gap-1">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('create') }}">+ New constellation</a>
+            {% if current_user.is_authenticated %}
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('user', name=current_user.id) }}">@{{ current_user.id }}</a>
+            {% else %}
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('login') }}">Log in</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        {% for message in messages %}
+          <div>
+            <div class="alert alert-{% if message[0] %}{{ message[0] }}{% else %}info{% endif %} alert-dismissible" role="alert">
+              <div>{{ message[1] }}</div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block body required %} {% endblock %}
+    </div>
+    <hr>
+    <footer>
+      <p class="text-center">Made by tasty kiwi.</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+{% extends "base.html" %} {% block title %}Index{% endblock %} {% block theme %}dark{% endblock %}
+{% block body %}
+<h5 class="mt-2">TableChat</h5>
+<div hx-trigger="load" hx-get="/posts" hx-swap="beforeend"></div>
+{#
+<div class="row row-cols-3" hx-trigger="load" hx-get="/posts" hx-swap="beforeend"></div>
+#} {% endblock %}
