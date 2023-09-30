@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block title %}@{{user.id}}{% endblock %} {% block theme %}dark{% endblock %}
 {% block body %}
-<img class="" style="max-width: 5%" src="https://api.dicebear.com/6.x/identicon/svg?seed={{user.name}}" />
+<img class="" style="max-width: 5%; border-radius: 0.4rem;" src="https://api.dicebear.com/7.x/thumbs/svg?seed={{user.id}}" />
 {% if user.is_verified %}
 <h1>@{{user.id}}<span title="This user is verified.">✅</span></h1>
 {% else %}
