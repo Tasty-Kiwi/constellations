@@ -64,7 +64,8 @@ class Constellation(db.Model):
     owner_name: Mapped[str] = mapped_column(ForeignKey("user.id"))
     owner: Mapped["User"] = relationship("User", backref="constellation")
     belonging_messages: Mapped[List['Message']] = relationship()
-
+    belonging_invites: Mapped[List['Invite']] = relationship()
+    members: Mapped[List['Invite']] = relationship()
 
 class Message(db.Model):
     __tablename__ = 'message'
@@ -75,6 +76,20 @@ class Message(db.Model):
     constellation_name: Mapped[str] = mapped_column(ForeignKey('constellation.name'))
     constellation: Mapped['Constellation'] = relationship('Constellation', backref='message')
 
+class Invite(db.Model):
+    __tablename__ = 'invite'
+    uuid: Mapped[Uuid] = mapped_column(Uuid, primary_key=True)
+    constellation_name: Mapped[str] = mapped_column(ForeignKey('constellation.name'))
+    constellation: Mapped['Constellation'] = relationship('Constellation', backref='invite')
+
+class Member(db.Model):
+    __tablename__= 'member'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_name: Mapped[str] = mapped_column(ForeignKey("user.id"))
+    user: Mapped["User"] = relationship("User", backref="member")
+    constellation_name: Mapped[str] = mapped_column(ForeignKey('constellation.name'))
+    constellation: Mapped['Constellation'] = relationship('Constellation', backref='member')
+    is_moderator: Mapped[bool] = mapped_column(Boolean)
 
 with app.app_context():
     db.create_all()
@@ -109,16 +124,6 @@ def register():
 
         flash("Account successfully created!", category="success")
         return redirect(url_for('index'))
-        # log_user = LoginUser()
-        # login_user(log_user)
-        # log_user.id = request.form["email"]
-        # return redirect(url_for('index'))
-    
-        # users = db.session.execute(db.select(User)).scalars().all()
-        # for user in users:
-        #     print(user.__dict__)
-        # flash(f"Logged in as @{user.name}!", category="success")
-        # return redirect(url_for('user', name=user.name))
 
     return render_template("register.html")
 
@@ -152,11 +157,22 @@ def create():
             is_private=False,
             owner=user
         )
+        invite = Invite(
+            uuid=uuid.uuid4(),
+            constellation=constellation
+        )
+        member = Member(
+            user=current_user,
+            constellation=constellation,
+            is_moderator=True
+        )
         db.session.add(constellation)
+        db.session.add(invite)
+        db.session.add(member)
         db.session.commit()
         flash(f'Constellation "{constellation_name}" was successfully created!', category="success")
         # return redirect(url_for("constellation", name=constellation_name))
-        return redirect(url_for("index"))
+        return redirect(url_for('constellation', name=constellation_name))
 
     return render_template("create.html")
 
@@ -168,6 +184,9 @@ def create():
 @app.route('/*/<string:name>', methods=["GET", "POST"])
 @login_required
 def constellation(name):
+    if len(db.session.query(Member).filter_by(constellation_name=name, user_name=current_user.id).all()) == 0:
+        flash("You are not invited!", category="warning")
+        return redirect(url_for('index'))
     if request.method == "POST":
         constellation = db.get_or_404(Constellation, name)
         message_content = request.form.get("message_content")
@@ -215,6 +234,20 @@ def edit_constellation(name):
     
     return render_template("constellation/edit.html", constellation=constellation)
 
+@app.route('/*/<string:name>/leave')
+@login_required
+def leave_constellation(name):
+    constellation = db.get_or_404(Constellation, name)
+    if len(db.session.query(Member).filter_by(constellation_name=name, user_name=current_user.id).all()) == 0:
+        flash("You are not invited!", category="warning")
+        return redirect(url_for('index'))
+    
+    db.session.query(Member).filter_by(constellation_name=name, user_name=current_user.id).delete()
+    db.session.commit()
+    flash("Left the constellation.", category="info")
+    return redirect(url_for('index'))
+
+
 @app.route('/constellation/<string:name>/delete')
 @login_required
 def delete_constellation(name):
@@ -222,6 +255,8 @@ def delete_constellation(name):
     if current_user.id != constellation.owner_name:
         return "Unauthorized", 401
     db.session.query(Message).filter_by(constellation_name=name).delete()
+    db.session.query(Invite).filter_by(constellation_name=name).delete()
+    db.session.query(Member).filter_by(constellation_name=name).delete()
     db.session.query(Constellation).filter_by(name=name).delete()
     db.session.commit()
     flash('Constellation successfully deleted!', category='success')
@@ -231,6 +266,9 @@ def delete_constellation(name):
 @login_required
 def message(uuid):
     message = db.get_or_404(Message, uuid)
+    if len(db.session.query(Member).filter_by(constellation_name=message.constellation_name, user_name=current_user.id).all()) == 0:
+        flash("You are not invited!", category="warning")
+        return redirect(url_for('index'))
     return render_template("message/view.html", message=message)
 
 @app.route('/msg/<uuid:uuid>/delete')
@@ -285,7 +323,7 @@ def edit_user():
         db.session.query(User).filter_by(id=user.id).update({User.bio: bio})
         db.session.commit()
 
-        flash('Message successfully edited!', category='success')
+        flash('User successfully edited!', category='success')
         return redirect(url_for('user', name=user.id))
     
     return render_template("user/edit.html", user=user)
@@ -300,8 +338,8 @@ def logout():
 @app.route('/user/edit/password', methods=['GET', 'POST'])
 @login_required
 def edit_password():
-    user = db.session.get(User, current_user)
-    return "Password change"
+    # user = db.session.get(User, current_user)
+    return "Password change is not available yet."
 
 @app.route('/user/delete')
 @login_required
@@ -320,6 +358,30 @@ def delete_user():
 def constellation_list():
     constellation_list = db.session.query(Constellation).filter_by(is_private=False).all()
     return render_template("constellation/list.html", constellation_list=constellation_list)
+
+@app.route('/invite/<uuid:uuid>')
+@login_required
+def invite(uuid):
+    invite = db.get_or_404(Invite, uuid)
+    if len(db.session.query(Member).filter_by(constellation_name=invite.constellation_name, user_name=current_user.id).all()) > 0:
+        return redirect(url_for('constellation', name=invite.constellation_name))
+    return render_template("invite.html", invite=invite)
+
+@app.route('/invite/<uuid:uuid>/join')
+@login_required
+def invite_join(uuid):
+    invite = db.get_or_404(Invite, uuid)
+    if len(db.session.query(Member).filter_by(constellation_name=invite.constellation_name, user_name=current_user.id).all()) > 0:
+        return redirect(url_for('constellation', name=invite.constellation_name))
+    member = Member(
+        user = current_user,
+        constellation = invite.constellation,
+        is_moderator=False
+    )
+    db.session.add(member)
+    db.session.commit()
+    flash(f"Joined to *{invite.constellation_name}!", category='success')
+    return redirect(url_for("constellation", name=invite.constellation_name))
 
 # Error handling
 

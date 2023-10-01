@@ -18,7 +18,7 @@
 <h2>Owned constellations:</h2>
 <ul>
   {% for constellation in user.owned_constellations %}
-    <li><a class="link-underline link-underline-opacity-0" href="{{ url_for('constellation', name=constellation.name) }}">*{{ constellation.name }}</a></li>
+    <li><a class="link-underline link-underline-opacity-0" href="{{ url_for('invite', uuid=constellation.belonging_invites[0].uuid) }}">*{{ constellation.name }}</a></li>
   {% endfor %}
 </ul>
 {% endblock %}

@@ -21,6 +21,8 @@
   </div>
   <button type="submit" class="btn btn-primary">Update</button>
 </form>
+<h4>Invite link</h4>
+<code>{{ url_for('invite', uuid=constellation.belonging_invites[0].uuid) }}</code>
 <h3>Danger zone</h3>
 <a class="btn btn-danger" href="{{ url_for('delete_constellation', name=constellation.name) }}">Delete *{{ constellation.name }}</a>
 <div class="form-text">

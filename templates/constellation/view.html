@@ -3,9 +3,15 @@
 <h1>*{{ constellation.name }}</h1>
 <h4>{{ constellation.description }}</h4>
 <h5>Owned by <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=constellation.owner_name) }}">@{{ constellation.owner_name }}</a> {% if constellation.owner.is_verified %}<span title="This user is verified.">✅</span>{% endif %}</h5>
-{% if constellation.owner_name == current_user.id%}
+{% if constellation.owner_name == current_user.id %}
 <div class="btn-group btn-group-sm mb-2" role="group" aria-label="Basic outlined example">
   <a class="btn btn-outline-secondary" href="{{ url_for('edit_constellation', name=constellation.name) }}" title="Settings">⚙️</a>
+  {#<button type="button" class="btn btn-outline-danger" title="Report constellation">🚩</button>#}
+</div>
+{% endif %}
+{% if constellation.owner_name != current_user.id %}
+<div class="btn-group btn-group-sm mb-2" role="group" aria-label="Basic outlined example">
+  <a class="btn btn-outline-danger" href="{{ url_for('leave_constellation', name=constellation.name) }}">Leave</a>
   {#<button type="button" class="btn btn-outline-danger" title="Report constellation">🚩</button>#}
 </div>
 {% endif %}

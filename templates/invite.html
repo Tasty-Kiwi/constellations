@@ -1,0 +1,7 @@
+{% extends "base.html" %} {% block title %}Invite to *{{ invite.constellation_name }}{% endblock %} {% block theme %}dark{% endblock %}
+{% block body %}
+<div class="container">
+  <h1>Invite to *{{ invite.constellation_name }}</h1>
+  <a class="btn btn-primary" href="{{ url_for('invite_join', uuid=invite.uuid) }}">Join</a>
+</div>
+{% endblock %}

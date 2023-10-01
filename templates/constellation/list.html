@@ -12,7 +12,7 @@
   <tbody>
     {% for constellation in constellation_list|reverse %}
       <tr>
-        <th scope="row"><a class="link-underline link-underline-opacity-0" href="{{ url_for('constellation', name=constellation.name) }}">*{{constellation.name}}</a></th>
+        <th scope="row"><a class="link-underline link-underline-opacity-0" href="{{ url_for('invite', uuid=constellation.belonging_invites[0].uuid) }}">*{{constellation.name}}</a></th>
         <td>{{ constellation.description }}</td>
         <td><a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=constellation.owner_name) }}">@{{ constellation.owner_name }}</a>{% if constellation.owner.is_verified %} <span title="This user is verified.">✅</span>{% endif %}</td>
       </tr>
