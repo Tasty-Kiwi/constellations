@@ -54,6 +54,7 @@ class User(UserMixin, db.Model):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     owned_constellations: Mapped[List["Constellation"]] = relationship()
     sent_messages: Mapped[List['Message']] = relationship()
+    is_member_of: Mapped[List['Member']] = relationship()
 
 
 class Constellation(db.Model):
@@ -65,7 +66,7 @@ class Constellation(db.Model):
     owner: Mapped["User"] = relationship("User", backref="constellation")
     belonging_messages: Mapped[List['Message']] = relationship()
     belonging_invites: Mapped[List['Invite']] = relationship()
-    members: Mapped[List['Invite']] = relationship()
+    members: Mapped[List['Member']] = relationship()
 
 class Message(db.Model):
     __tablename__ = 'message'

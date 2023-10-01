@@ -38,7 +38,7 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('constellation_list') }}">Public constellations</a>
             </li>
-            {#
+            {% if current_user.is_authenticated and current_user.is_member_of|length > 0 %}
             <li class="nav-item dropdown">
               <a
                 class="nav-link dropdown-toggle"
@@ -49,11 +49,12 @@
                 Constellations you're part of
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{{ url_for('constellation', name='kiwis') }}">*kiwis</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('constellation', name='ppac') }}">*ppac</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('constellation', name='pewpew') }}">*pewpew</a></li>
+                {% for member in current_user.is_member_of %}
+                <li><a class="dropdown-item" href="{{ url_for('constellation', name=member.constellation_name) }}">*{{ member.constellation_name }}</a></li>
+                {% endfor %}
               </ul>
-            </li>#}
+            </li>
+            {% endif %}
           </ul>
           <div class="d-flex gap-1">
             <a class="btn btn-sm btn-outline-primary" href="{{ url_for('create') }}">+ New constellation</a>

@@ -21,11 +21,40 @@
   </div>
   <button type="submit" class="btn btn-primary">Update</button>
 </form>
-<h4>Invite link</h4>
+<h3>Invite link</h3>
 <code>{{ url_for('invite', uuid=constellation.belonging_invites[0].uuid) }}</code>
 <h3>Danger zone</h3>
 <a class="btn btn-danger" href="{{ url_for('delete_constellation', name=constellation.name) }}">Delete *{{ constellation.name }}</a>
 <div class="form-text">
   This action is irreversible. All data, related to this constellation, including messages, will be deleted.
 </div>
+<h3 class="mt-3">Members:</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Flags</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for member in constellation.members %}
+    <tr>
+      <th scope="row"><a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=member.user_name) }}">@{{ member.user_name }}</a>{% if member.user.is_verified %} <span title="This user is verified.">✅</span>{% endif %}</th>
+      <td>{% if member.user_name == constellation.owner_name %}<span title="This user owns this constellation.">👑</span>{% endif %}{% if member.is_moderator %}<span title="This user is a moderator.">🎩</span>{% endif %}</td>
+      <td>
+        {% if member.user_name != constellation.owner_name %}
+        <div class="btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
+          <a class="btn btn-outline-danger" href="#" title="Toggle mod status">🎩</a>
+          <a class="btn btn-outline-danger" href="#" title="Transfer ownership">👑</a>
+          <a class="btn btn-outline-danger" href="#" title="Kick">🥾</a>
+          {#<a class="btn btn-outline-danger" href="#" title="Ban">🔨</a>#}
+          {#<button type="button" class="btn btn-outline-danger" title="Report user">🚩</button>#}  
+        </div>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% endblock %}
