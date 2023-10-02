@@ -57,7 +57,7 @@ login_manager.login_view = 'login'
 login_manager.login_message_category = "info"
 login_manager.init_app(app)
 
-markdowner = Markdown(extras=["fenced-code-blocks", "link-patterns", "strike", "spoiler", "mermaid", "task_list", "tables"], link_patterns=[(pattern, r'\1')])
+markdowner = Markdown(extras=["fenced-code-blocks", "link-patterns", "strike", "spoiler", "mermaid", "task_list", "tables"], link_patterns=[(pattern, r'\1')], safe_mode=True)
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
