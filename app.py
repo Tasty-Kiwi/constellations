@@ -3,6 +3,7 @@
 # from werkzeug.utils import secure_filename
 import tomllib
 from flask import Flask, redirect, request, flash, render_template, url_for, send_from_directory
+from jinja2 import Environment
 from werkzeug.exceptions import RequestEntityTooLarge
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey, Integer, String, Boolean, Uuid
@@ -11,6 +12,8 @@ from flask_bcrypt import Bcrypt
 import uuid
 from typing import List
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
+from markdown2 import Markdown
+import re
 
 with open("config.toml", "rb") as f:
     config = tomllib.load(f)
@@ -26,6 +29,21 @@ app.config['UPLOAD_FOLDER'] = config["upload_folder"]
 app.config["SQLALCHEMY_DATABASE_URI"] = config["sqlalchemy_database_uri"]
 app.config['MAX_CONTENT_LENGTH'] = config["max_content_length"]
 
+# TODO: add @ and * syntaxes
+pattern = re.compile(
+    r"""
+        \b
+        (
+            (?:https?://|(?<!//)www\.)    # prefix - https:// or www.
+            \w[\w_\-]*(?:\.\w[\w_\-]*)*   # host
+            [^<>\s"']*                    # rest of url
+            (?<![?!.,:*_~);])             # exclude trailing punctuation
+            (?=[?!.,:*_~);]?(?:[<\s]|$))  # make sure that we're not followed by " or ', i.e. we're outside of href="...".
+        )
+    """,
+    re.X
+)
+
 class Base(DeclarativeBase):
     pass
 
@@ -39,7 +57,7 @@ login_manager.login_view = 'login'
 login_manager.login_message_category = "info"
 login_manager.init_app(app)
 
-
+markdowner = Markdown(extras=["fenced-code-blocks", "link-patterns", "strike", "spoiler", "mermaid", "task_list", "tables"], link_patterns=[(pattern, r'\1')])
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
@@ -219,7 +237,7 @@ def constellation(name):
         return redirect(url_for('constellation', name=name))
     
     constellation = db.get_or_404(Constellation, name)
-    return render_template("constellation/view.html", constellation=constellation)
+    return render_template("constellation/view.html", constellation=constellation, markdowner=markdowner)
 
 @app.route('/*/<string:name>/edit', methods=['GET', 'POST'])
 @login_required
@@ -270,7 +288,7 @@ def message(uuid):
     if len(db.session.query(Member).filter_by(constellation_name=message.constellation_name, user_name=current_user.id).all()) == 0:
         flash("You are not invited!", category="warning")
         return redirect(url_for('index'))
-    return render_template("message/view.html", message=message)
+    return render_template("message/view.html", message=message, markdowner=markdowner)
 
 @app.route('/msg/<uuid:uuid>/delete')
 @login_required
@@ -312,7 +330,7 @@ def edit_message(uuid):
 @login_required
 def user(name):
     user = db.get_or_404(User, name)
-    return render_template("user/view.html", user=user)
+    return render_template("user/view.html", user=user, markdowner=markdowner)
 
 @app.route('/user/edit', methods=['GET', 'POST'])
 @login_required
@@ -384,6 +402,11 @@ def invite_join(uuid):
     db.session.commit()
     flash(f"Joined to *{invite.constellation_name}!", category='success')
     return redirect(url_for("constellation", name=invite.constellation_name))
+
+
+@app.route('/extra_styles.css')
+def pygment_css():
+    return send_from_directory("./styles/", "extra_styles.css")
 
 # Error handling
 

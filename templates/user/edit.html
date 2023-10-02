@@ -3,14 +3,15 @@
 <form method="post" class="mb-3">
   <div class="mb-3">
     <label for="exampleInputEmail1" class="form-label">Bio</label>
-    <input
+    <textarea type="text" class="form-control" id="exampleInputEmail1" aria-describedby="basic-addon1" name="bio" required>{{ user.bio }}</textarea>
+    {#<input
       type="text"
       class="form-control"
       aria-describedby="basic-addon1"
       name="bio"
       value="{{ user.bio }}"
-      required />
-    <div class="form-text">The bio must not be longer than 256 characters.</div>
+      required />#}
+    <div class="form-text">The bio must not be longer than 256 characters. You may use Markdown if you wish.</div>
   </div>
   {#<div class="mb-3">
     <label for="exampleInputEmail1" class="form-label">Email</label>
