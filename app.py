@@ -276,12 +276,13 @@ def message(uuid):
 @login_required
 def delete_message(uuid):
     message = db.get_or_404(Message, uuid)
-    if current_user.id != message.author_name or current_user.id != message.constellation.owner_name:
-        return "Unauthorized", 401
-    db.session.query(Message).filter_by(uuid=uuid).delete()
-    db.session.commit()
-    flash('Message successfully deleted!', category='success')
-    return redirect(url_for('constellation', name=message.constellation_name))
+    if current_user.id == message.author_name or current_user.id == message.constellation.owner_name:
+        db.session.query(Message).filter_by(uuid=uuid).delete()
+        db.session.commit()
+        flash('Message successfully deleted!', category='success')
+        return redirect(url_for('constellation', name=message.constellation_name))
+    
+    return "Unauthorized", 401
 
 @app.route('/msg/<uuid:uuid>/edit', methods=['GET', 'POST'])
 @login_required
