@@ -1,0 +1,26 @@
+{% extends "base.html" %} {% block title %}Info{% endblock %} {% block theme %}dark{% endblock %}
+{% block body %}
+<h1>Info</h1>
+<h2>Markdown support</h2>
+<p>Constellations supports advanced markdown support, including support for tables, syntax highlighting and mermaid graphs.</p>
+<h3>Tables</h3>
+<p>Tables are created using GitHub's syntax:</p>
+<pre>
+| Header 1 | Header 2 |
+|----------|----------|
+| Cell 1   | Cell 2   |
+| Cell 3   | Cell 4   |
+</pre>
+<h3>Graphs</h3>
+<p>Graphs are created using code block syntax:</p>
+<pre>
+```mermaid
+graph TD;
+  A--&gt;B;
+  A--&gt;C;
+  B--&gt;D;
+  C--&gt;D;
+```
+</pre>
+<p>More information on Mermaid syntax is in their <a href="https://mermaid.js.org" target="_blank">website</a>.</p>
+{% endblock %}
