@@ -427,14 +427,14 @@ def edit_password():
 @app.route('/user/delete')
 @login_required
 def delete_user():
-    user = current_user
+    user_id = current_user.id
     logout_user()
     
-    db.session.query(Message).filter_by(author_name=user.id).delete()
-    db.session.query(Reply).filter_by(author_name=user.id).delete()
+    db.session.query(Message).filter_by(author_name=user_id).delete()
+    db.session.query(Reply).filter_by(author_name=user_id).delete()
     # db.session.query(Reply).filter_by(original_author_name=user.id).delete()
-    db.session.query(User).filter_by(id=user.id).delete()
-    db.session.query(Constellation).filter_by(owner_name=user.id).delete()
+    db.session.query(Constellation).filter_by(owner_name=user_id).delete()
+    db.session.query(User).filter_by(id=user_id).delete()
     db.session.commit()
     flash('User successfully deleted!', category='success')
     return redirect(url_for('index'))
