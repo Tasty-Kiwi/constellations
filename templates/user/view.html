@@ -23,7 +23,7 @@
 {% block body %}
 <img class="" style="max-width: 5%; border-radius: 0.4rem;" src="https://api.dicebear.com/7.x/thumbs/svg?seed={{user.id}}" />
 {% if user.is_verified %}
-<h1>@{{user.id}}<span title="This user is verified.">✅</span></h1>
+<h1>@{{user.id}} <span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span></h1>
 {% else %}
 <h1>@{{user.id}}</h1>
 {% endif %}

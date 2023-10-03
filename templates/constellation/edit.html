@@ -40,14 +40,14 @@
   <tbody>
     {% for member in constellation.members %}
     <tr>
-      <th scope="row"><a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=member.user_name) }}">@{{ member.user_name }}</a>{% if member.user.is_verified %} <span title="This user is verified.">✅</span>{% endif %}</th>
-      <td>{% if member.user_name == constellation.owner_name %}<span title="This user owns this constellation.">👑</span>{% endif %}{% if member.is_moderator %}<span title="This user is a moderator.">🎩</span>{% endif %}</td>
+      <th scope="row"><a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=member.user_name) }}">@{{ member.user_name }}</a>{% if member.user.is_verified %} <span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span>{% endif %}</th>
+      <td>{% if member.user_name == constellation.owner_name %}<span title="This user owns this constellation."><i class="bi bi-person-gear" style="font-size: 1.5rem; margin-right: 0.5rem; margin-right: 0.5rem;"></i></span>{% endif %}{% if member.is_moderator %}<span title="This user is a moderator."><i class="bi bi-person-badge" style="font-size: 1.5rem; margin-right: 0.5rem; margin-right: 0.5rem;"></i></span>{% endif %}</td>
       <td>
         {% if member.user_name != constellation.owner_name %}
         <div class="btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
-          <a class="btn btn-outline-danger" href="#" title="Toggle mod status">🎩</a>
-          <a class="btn btn-outline-danger" href="#" title="Transfer ownership">👑</a>
-          <a class="btn btn-outline-danger" href="#" title="Kick">🥾</a>
+          <a class="btn btn-outline-danger" href="#" title="Toggle mod status"><i class="bi bi-person-badge" style="font-size: 1rem;"></i></a>
+          <a class="btn btn-outline-danger" href="#" title="Transfer ownership"><i class="bi bi-person-gear" style="font-size: 1rem;"></i></a>
+          <a class="btn btn-outline-danger" href="#" title="Kick"><i class="bi bi-person-x" style="font-size: 1rem;"></i></a>
           {#<a class="btn btn-outline-danger" href="#" title="Ban">🔨</a>#}
           {#<button type="button" class="btn btn-outline-danger" title="Report user">🚩</button>#}  
         </div>

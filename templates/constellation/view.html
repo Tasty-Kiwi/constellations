@@ -7,11 +7,11 @@
   <div class="card-body">
     <h5 class="card-title">{{ constellation.description }}</h5>
     <div class="card-text mb-3">
-      Owned by <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=constellation.owner_name) }}">@{{ constellation.owner_name }}</a> {% if constellation.owner.is_verified %}<span title="This user is verified.">✅</span>{% endif %}
+      Owned by <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=constellation.owner_name) }}">@{{ constellation.owner_name }}</a> {% if constellation.owner.is_verified %}<span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span>{% endif %}
     </div>
     {% if constellation.owner_name == current_user.id %}
     <div class="btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
-      <a class="btn btn-outline-secondary" href="{{ url_for('edit_constellation', name=constellation.name) }}" title="Settings">⚙️</a>
+      <a class="btn btn-outline-secondary" href="{{ url_for('edit_constellation', name=constellation.name) }}" title="Settings"><i class="bi bi-gear"></i></a>
       {#<button type="button" class="btn btn-outline-danger" title="Report constellation">🚩</button>#}
     </div>
     {% endif %}
@@ -41,7 +41,7 @@
         <input class="form-control" type="file" id="formFile" name="file" disabled>
         <label for="formFile" class="form-text">You may upload files no larger than 2 megabytes. Only .png, .jpg, .jpeg, .webp, .gif files are allowed.</label>
       </div>#}
-      <button type="submit" class="btn btn-primary">Post</button>
+      <button type="submit" class="btn btn-primary"><i class="bi bi-envelope-arrow-up"></i> Post</button>
     </form>
   </div>
 </div>
@@ -50,7 +50,7 @@
   <ul class="list-group list-group-flush">
   {% for message in constellation.belonging_messages|reverse %}
   <li class="list-group-item"><a class="link-underline link-underline-opacity-0" href="{{ url_for('message', uuid=message.uuid) }}">{{ message.title }}</a> by 
-    <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=message.author_name) }}">@{{ message.author_name }}</a>{% if message.author.is_verified %} <span title="This user is verified.">✅</span>{% endif %}{% if message.author_name == message.constellation.owner_name %} <span title="This user owns this constellation.">👑</span>{% endif %}
+    <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=message.author_name) }}">@{{ message.author_name }}</a>{% if message.author.is_verified %} <span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span>{% endif %}{% if message.author_name == message.constellation.owner_name %} <span title="This user owns this constellation."><i class="bi bi-person-gear"></i></span>{% endif %}
     <div class="form-text">2 days ago</div>
   </li>
   {% endfor %}

@@ -9,7 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey, Integer, String, Boolean, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, relationship
 from flask_bcrypt import Bcrypt
-import uuid
+from uuid import uuid4
 from typing import List
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from markdown2 import Markdown
@@ -196,7 +196,7 @@ def create():
             owner=user
         )
         invite = Invite(
-            uuid=uuid.uuid4(),
+            uuid=uuid4(),
             constellation=constellation
         )
         member = Member(
@@ -233,7 +233,7 @@ def constellation(name):
         user = current_user
 
         message = Message(
-            uuid=uuid.uuid4(),
+            uuid=uuid4(),
             content=message_content,
             title=title,
             author=user,
@@ -310,8 +310,17 @@ def message(uuid):
     if len(db.session.query(Member).filter_by(constellation_name=message.constellation_name, user_name=current_user.id).all()) == 0:
         flash("You are not invited!", category="warning")
         return redirect(url_for('index'))
-
     if request.method == 'POST':
+        reply_content = request.form.get("reply_content")
+        reply = Reply(
+            uuid=uuid4(),
+            author=current_user,
+            message=message,
+            content=reply_content,
+            constellation_name=message.constellation_name
+        )
+        db.session.add(reply)
+        db.session.commit()
         flash('Replied successfully!', category='success')
         return redirect(url_for('message', uuid=uuid))
     return render_template("message/view.html", message=message, markdowner=markdowner)
