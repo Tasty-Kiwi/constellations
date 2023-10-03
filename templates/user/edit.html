@@ -2,20 +2,55 @@
 <h1>Edit @{{ user.id }}</h1>
 <form method="post" class="mb-3">
   <div class="mb-3">
-    <label for="exampleInputEmail1" class="form-label">Bio</label>
-    <textarea type="text" class="form-control" style="height: 350px" aria-describedby="basic-addon1" name="bio" required>{{ user.bio }}</textarea>
-    <div class="form-text">{% include 'markdown-mark.svg.html' %} You may use Markdown if you wish.The bio must not be longer than 256 characters.</div>
+    <label for="bio" class="form-label">Bio</label>
+    <textarea type="text" class="form-control" id="bio" style="height: 200px" aria-describedby="basic-addon1" name="bio" required>{{ user.bio }}</textarea>
+    <div class="form-text"><i class="bi bi-markdown"></i> You may use Markdown if you wish. The bio must not be longer than 256 characters.</div>
   </div>
-  {#<div class="mb-3">
-    <label for="exampleInputEmail1" class="form-label">Email</label>
+  <div class="mb-3">
+    <label for="email" class="form-label">Email</label>
     <input
       type="text"
       class="form-control"
       aria-describedby="basic-addon1"
       name="email"
+      id="email"
       value="{{ user.email }}"
       required />
-  </div>#}
+      <div class="form-text">Your email is used for security purposes. It is not shared.</div>
+  </div>
+  <div class="mb-3">
+    <label for="blabber" class="form-label">{% include 'blabber-logo.svg.html' %} Blabber</label>
+    <input
+      type="text"
+      class="form-control"
+      aria-describedby="basic-addon1"
+      name="blabber_url"
+      value="{{ user.blabber_url }}"
+      />
+      <div class="form-text">Constellations works best with <a class="link-underline link-underline-opacity-0" href="https://blabber.fly.dev/" target="_blank">Blabber</a>.</div>
+  </div>
+  <div class="mb-3">
+    <label for="location" class="form-label"><i class="bi bi-geo-alt"></i> Location</label>
+    <input
+      type="text"
+      class="form-control"
+      aria-describedby="basic-addon1"
+      name="location"
+      value="{{ user.location }}"
+      />
+      <div class="form-text">The location can be anything. Up to 64 characters.</div>
+  </div>
+  <div class="mb-3">
+    <label for="website" class="form-label"><i class="bi bi-globe-americas"></i> Website</label>
+    <input
+      type="text"
+      class="form-control"
+      aria-describedby="basic-addon1"
+      name="website"
+      value="{{ user.website }}"
+      />
+      <div class="form-text">Your personal website, <a class="link-underline link-underline-opacity-0" href="https://omg.lol/" target="_blank">omg.lol</a> page or your discord server link. We don't care, as long as it's not anything illegal.</div>
+  </div>
   <button type="submit" class="btn btn-primary">Update</button>
 </form>
 <h3>Security</h3>

@@ -21,25 +21,44 @@
 </script>
 {% endblock %}
 {% block body %}
-<img class="" style="max-width: 5%; border-radius: 0.4rem;" src="https://api.dicebear.com/7.x/thumbs/svg?seed={{user.id}}" />
-{% if user.is_verified %}
-<h1>@{{user.id}} <span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span></h1>
-{% else %}
-<h1>@{{user.id}}</h1>
-{% endif %}
-<h2>Bio:</h2>
-<p>{{ markdowner.convert(user.bio).replace('<table>', '<table class="table table-sm">')|safe}}</p> <!--TODO: make better table detection thing-->
-{% if current_user.id == user.id %}
-<h2>User actions:</h2>
-<div class="btn-group mb-3">
-  <a class ="btn btn-outline-info" href="{{ url_for('logout') }}">Log out</a>
-  <a class ="btn btn-outline-info" href="{{ url_for('edit_user') }}">Edit</a>
+<img class="mb-3" style="max-width: 10%; border-radius: 0.4rem;" src="https://api.dicebear.com/7.x/thumbs/svg?seed={{user.id}}" />
+<div class="card mb-3">
+  <h4 class="card-header">@{{user.id}}{% if user.is_verified %} <span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span>{% endif %}</h4>
+  <div class="card-body">
+    <h5 class="card-title">Bio:</h5>
+    <p class="card-text">{{ markdowner.convert(user.bio).replace('<table>', '<table class="table table-sm">')|safe}}</p>
+  </div>
+    <ul class="list-group list-group-flush">
+      {% if user.location|length > 0 %}
+      <li class="list-group-item"><i class="bi bi-geo-alt"></i> {{ user.location }}</li>
+      {% endif %}
+      {% if user.blabber_url|length > 0 %}
+      <li class="list-group-item"><a class="link-underline link-underline-opacity-0" href="{{ user.blabber_url }}">{% include 'blabber-logo.svg.html' %} Blabber</a></li>
+      {% endif %}
+      {% if user.website|length > 0 %}
+      <li class="list-group-item"><a class="link-underline link-underline-opacity-0" href="{{ user.website }}"><i class="bi bi-globe-americas"></i> Website</a></li>
+      {% endif %}
+      {% if current_user.id == user.id %}
+      <li class="list-group-item">
+        <h6 class="mb-3">User actions</h6>
+        <div class="btn-group btn-group-sm mb-3">
+          <a class ="btn btn-outline-info" href="{{ url_for('logout') }}">Log out</a>
+          <a class ="btn btn-outline-info" href="{{ url_for('edit_user') }}">Edit</a>
+        </div>
+      </li>
+      {% endif %}
+    </ul>
 </div>
-{% endif %}
-<h2>Owned constellations:</h2>
-<ul>
-  {% for constellation in user.owned_constellations %}
-    <li><a class="link-underline link-underline-opacity-0" href="{{ url_for('invite', uuid=constellation.belonging_invites[0].uuid) }}">*{{ constellation.name }}</a></li>
-  {% endfor %}
-</ul>
+<div class="card">
+  <h5 class="card-header">
+    Owned public constellations:
+  </h5>
+  <ul class="list-group list-group-flush">
+    {% for constellation in user.owned_constellations %}
+      {% if not constellation.is_private %}
+        <li class="list-group-item"><a class="link-underline link-underline-opacity-0" href="{{ url_for('invite', uuid=constellation.belonging_invites[0].uuid) }}">*{{ constellation.name }}</a></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</div>
 {% endblock %}

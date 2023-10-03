@@ -66,6 +66,9 @@ class User(UserMixin, db.Model):
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
     bio: Mapped[str] = mapped_column(String(256))
+    blabber_url: Mapped[str] = mapped_column(String(64))
+    location: Mapped[str] = mapped_column(String(64))
+    website: Mapped[str] = mapped_column(String(64))
     #! Warning: relationship 'Constellation.owner' will copy column user.name to column constellation.owner_name,
     #! which conflicts with relationship(s): 'User.owned_constellations' (copies user.name to constellation.owner_name).
     #! https://sqlalche.me/e/20/qzyx
@@ -79,9 +82,6 @@ class Constellation(db.Model):
     __tablename__ = 'constellation'
     name: Mapped[str] = mapped_column(String(16), primary_key=True, unique=True, nullable=False)
     description: Mapped[str] = mapped_column(String(256))
-    blabber_url: Mapped[str] = mapped_column(String(64), nullable=True)
-    location: Mapped[str] = mapped_column(String(64), nullable=True)
-    website: Mapped[str] = mapped_column(String(64), nullable=True)
     is_private: Mapped[bool] = mapped_column(Boolean, nullable=False)
     owner_name: Mapped[str] = mapped_column(ForeignKey("user.id"))
     owner: Mapped["User"] = relationship("User", backref="constellation")
@@ -155,7 +155,10 @@ def register():
             id=request.form["username"],
             email=request.form["email"],
             password_hash=bcrypt.generate_password_hash(request.form["password"]).decode('utf-8'),
-            bio="Edit me!"
+            bio="Edit me!",
+            blabber_url="",
+            location="",
+            website=""
         )
         db.session.add(user)
         db.session.commit()
@@ -187,12 +190,15 @@ def login():
 def create():
     if request.method == "POST":
         constellation_name = request.form.get("constellation_name")
-
+        if request.form.get("is_private") == 'on':
+            is_private = True
+        else:
+            is_private = False
         user = current_user
         constellation = Constellation(
             name=constellation_name,
             description=request.form.get("description"),
-            is_private=False,
+            is_private=is_private,
             owner=user
         )
         invite = Invite(
@@ -267,7 +273,12 @@ def edit_constellation(name):
     if current_user.id != constellation.owner_name:
         return "Unauthorized", 401
     if request.method == 'POST':
-        db.session.query(Constellation).filter_by(name=name).update({Constellation.description: request.form.get("description")})
+        description = request.form.get("description")
+        if request.form.get("is_private") == 'on':
+            is_private = True
+        else:
+            is_private = False
+        db.session.query(Constellation).filter_by(name=name).update({Constellation.description: description, Constellation.is_private: is_private})
         db.session.commit()
         flash('Constellation successfully edited!', category='success')
         return redirect(url_for('constellation', name=name))
@@ -390,7 +401,6 @@ def delete_reply(uuid):
 #     return send_from_directory(app.config["UPLOAD_FOLDER"], name)
 
 @app.route('/@/<string:name>')
-@login_required
 def user(name):
     user = db.get_or_404(User, name)
     return render_template("user/view.html", user=user, markdowner=markdowner)
@@ -401,9 +411,12 @@ def edit_user():
     user = current_user
     if request.method == 'POST':
         bio = request.form.get("bio")
-        #email = request.form.get("email")
+        email = request.form.get("email")
+        blabber_url = request.form.get("blabber_url")
+        website = request.form.get("website")
+        location = request.form.get("location")
 
-        db.session.query(User).filter_by(id=user.id).update({User.bio: bio})
+        db.session.query(User).filter_by(id=user.id).update({User.bio: bio, User.email: email, User.blabber_url: blabber_url, User.website: website, User.location: location})
         db.session.commit()
 
         flash('User successfully edited!', category='success')

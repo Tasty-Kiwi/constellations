@@ -13,7 +13,7 @@
     <div class="form-text">The description must not be longer than 256 characters.</div>
   </div>
   <div class="mb-3 form-check">
-    <input type="checkbox" class="form-check-input" name="is_private" />
+    <input type="checkbox" class="form-check-input" name="is_private" {% if constellation.is_private %}checked{% endif %} />
     <label class="form-check-label" for="exampleCheck1">Is private?</label>
     <div class="form-text">
       Private constellations are not published to the list. This option can be changed later.
