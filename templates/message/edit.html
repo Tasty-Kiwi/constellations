@@ -4,8 +4,19 @@
   <h1>Edit a message</h1>
   <form class="mb-2" method="post" enctype="multipart/form-data">
     <div class="mb-2">
-      <textarea type="text" class="form-control" id="exampleInputEmail1" placeholder="{{ ['What a nice day!', 'Share your thoughts!', 'Ready to tell something? 😊', 'Tell *'+ message.constellation_name + ' what\'s happening today']|random }}" aria-describedby="emailHelp" name="message_content" required>{{ message.content }}</textarea>
-      <div id="emailHelp" class="form-text">You may send messages up to 4096 characters. You may not edit attachments.</div>
+      <input
+        type="text"
+        class="form-control"
+        aria-describedby="basic-addon1"
+        name="title"
+        placeholder="Title"
+        value="{{ message.title }}"
+        required />
+      <div id="emailHelp" class="form-text">You may have a title up to 128 characters. You may not use Markdown.</div>
+    </div>
+    <div class="mb-2">
+      <textarea type="text" class="form-control" style="height: 350px" placeholder="{{ ['What a nice day!', 'Share your thoughts!', 'Ready to tell something? 😊', 'Tell *'+ message.constellation_name + ' what\'s happening today']|random }}" aria-describedby="emailHelp" name="message_content" required>{{ message.content }}</textarea>
+      <div id="emailHelp" class="form-text">{% include 'markdown-mark.svg.html' %} You may use Markdown if you wish. You may send messages up to 4096 characters. You may not edit attachments.</div>
     </div>
     <button type="submit" class="btn btn-primary">Update</button>
   </form>

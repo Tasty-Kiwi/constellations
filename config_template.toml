@@ -4,3 +4,5 @@ sqlalchemy_database_uri = "sqlite:///constellations.db"
 
 allowed_extensions = ["png", "jpg", "jpeg", "webp", "gif"]
 max_content_length = 2000000 # 2 MB
+
+markdown_extras = ["fenced-code-blocks", "link-patterns", "strike", "mermaid", "task_list", "tables", "wiki-tables"]

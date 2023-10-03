@@ -57,7 +57,7 @@ login_manager.login_view = 'login'
 login_manager.login_message_category = "info"
 login_manager.init_app(app)
 
-markdowner = Markdown(extras=["fenced-code-blocks", "link-patterns", "strike", "spoiler", "mermaid", "task_list", "tables"], link_patterns=[(pattern, r'\1')], safe_mode=True)
+markdowner = Markdown(extras=config["markdown_extras"], link_patterns=[(pattern, r'\1')], safe_mode=True)
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
@@ -79,6 +79,9 @@ class Constellation(db.Model):
     __tablename__ = 'constellation'
     name: Mapped[str] = mapped_column(String(16), primary_key=True, unique=True, nullable=False)
     description: Mapped[str] = mapped_column(String(256))
+    blabber_url: Mapped[str] = mapped_column(String(64), nullable=True)
+    location: Mapped[str] = mapped_column(String(64), nullable=True)
+    website: Mapped[str] = mapped_column(String(64), nullable=True)
     is_private: Mapped[bool] = mapped_column(Boolean, nullable=False)
     owner_name: Mapped[str] = mapped_column(ForeignKey("user.id"))
     owner: Mapped["User"] = relationship("User", backref="constellation")
@@ -91,9 +94,22 @@ class Message(db.Model):
     uuid: Mapped[Uuid] = mapped_column(Uuid, primary_key=True)
     author_name: Mapped[str] = mapped_column(ForeignKey("user.id"))
     author: Mapped['User'] = relationship('User', backref='message')
+    title: Mapped[str] = mapped_column(String(128))
     content: Mapped[str] = mapped_column(String(4096))
     constellation_name: Mapped[str] = mapped_column(ForeignKey('constellation.name'))
     constellation: Mapped['Constellation'] = relationship('Constellation', backref='message')
+    replies: Mapped[List['Reply']] = relationship()
+
+class Reply(db.Model):
+    __tablename__ = 'reply'
+    uuid: Mapped[Uuid] = mapped_column(Uuid, primary_key=True)
+    author_name: Mapped[str] = mapped_column(ForeignKey("user.id"))
+    author: Mapped['User'] = relationship('User', backref='reply')
+    content: Mapped[str] = mapped_column(String(4096))
+    constellation_name: Mapped[str] = mapped_column(ForeignKey('constellation.name'))
+    constellation: Mapped['Constellation'] = relationship('Constellation', backref='reply')
+    message_uuid: Mapped[Uuid] = mapped_column(ForeignKey('message.uuid'))
+    message: Mapped['Message'] = relationship('Message', backref='reply')
 
 class Invite(db.Model):
     __tablename__ = 'invite'
@@ -139,7 +155,7 @@ def register():
             id=request.form["username"],
             email=request.form["email"],
             password_hash=bcrypt.generate_password_hash(request.form["password"]).decode('utf-8'),
-            bio="Placeholder bio"
+            bio="Edit me!"
         )
         db.session.add(user)
         db.session.commit()
@@ -212,12 +228,14 @@ def constellation(name):
     if request.method == "POST":
         constellation = db.get_or_404(Constellation, name)
         message_content = request.form.get("message_content")
-        
+        title = request.form.get("title")
+
         user = current_user
 
         message = Message(
             uuid=uuid.uuid4(),
             content=message_content,
+            title=title,
             author=user,
             constellation=constellation
         )
@@ -277,6 +295,7 @@ def delete_constellation(name):
     if current_user.id != constellation.owner_name:
         return "Unauthorized", 401
     db.session.query(Message).filter_by(constellation_name=name).delete()
+    db.session.query(Reply).filter_by(constellation_name=name).delete()
     db.session.query(Invite).filter_by(constellation_name=name).delete()
     db.session.query(Member).filter_by(constellation_name=name).delete()
     db.session.query(Constellation).filter_by(name=name).delete()
@@ -284,13 +303,17 @@ def delete_constellation(name):
     flash('Constellation successfully deleted!', category='success')
     return redirect(url_for('index'))
 
-@app.route('/msg/<uuid:uuid>')
+@app.route('/msg/<uuid:uuid>', methods=['GET', 'POST'])
 @login_required
 def message(uuid):
     message = db.get_or_404(Message, uuid)
     if len(db.session.query(Member).filter_by(constellation_name=message.constellation_name, user_name=current_user.id).all()) == 0:
         flash("You are not invited!", category="warning")
         return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        flash('Replied successfully!', category='success')
+        return redirect(url_for('message', uuid=uuid))
     return render_template("message/view.html", message=message, markdowner=markdowner)
 
 @app.route('/msg/<uuid:uuid>/delete')
@@ -299,6 +322,7 @@ def delete_message(uuid):
     message = db.get_or_404(Message, uuid)
     if current_user.id == message.author_name or current_user.id == message.constellation.owner_name:
         db.session.query(Message).filter_by(uuid=uuid).delete()
+        db.session.query(Reply).filter_by(message_uuid=uuid).delete()
         db.session.commit()
         flash('Message successfully deleted!', category='success')
         return redirect(url_for('constellation', name=message.constellation_name))
@@ -316,11 +340,12 @@ def edit_message(uuid):
         print(message.author_name)
         
         message_content = request.form.get("message_content")
-        db.session.query(Message).filter_by(uuid=uuid).update({Message.content: message_content})
+        title = request.form.get("title")
+        db.session.query(Message).filter_by(uuid=uuid).update({Message.content: message_content, Message.title: title})
         db.session.commit()
 
         flash('Message successfully edited!', category='success')
-        return redirect(url_for('constellation', name=message.constellation_name))
+        return redirect(url_for('message', uuid=uuid))
     
     return render_template('message/edit.html', message=message)
 
@@ -370,6 +395,8 @@ def delete_user():
     user = current_user
     logout_user()
     db.session.query(Message).filter_by(author_name=user.id).delete()
+    db.session.query(Reply).filter_by(author_name=user.id).delete()
+    db.session.query(Reply).filter_by(original_author_name=user.id).delete()
     db.session.query(User).filter_by(id=user.id).delete()
     db.session.query(Constellation).filter_by(owner_name=user.id).delete()
     db.session.commit()

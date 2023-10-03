@@ -22,20 +22,56 @@
 {% endblock %}
 {% block body %}
 <div class="container">
-  <h3>
-    <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=message.author_name) }}">@{{ message.author_name }}</a>{% if message.author.is_verified %} <span title="This user is verified.">✅</span>{% endif %}{% if message.author_name == message.constellation.owner_name %} <span title="This user owns this constellation.">👑</span>{% endif %}
-    ➔
-    <a class="link-underline link-underline-opacity-0" href="{{ url_for('constellation', name=message.constellation_name) }}">*{{ message.constellation_name }}</a>
-  </h3>
-  {% if message.author_name == current_user.id or message.constellation.owner_name == current_user.id %}
-  <div class="btn-group btn-group-sm mb-3" role="group" aria-label="Basic outlined example">
-    {% if message.author_name == current_user.id %}
-    <a class="btn btn-outline-secondary" href="{{ url_for('edit_message', uuid=message.uuid) }}" title="Edit post">✏️</a>
-    {% endif %}
-    <a class="btn btn-outline-danger" href="{{ url_for('delete_message', uuid=message.uuid) }}" title="Delete post">🗑️</a>
-    {#<button type="button" class="btn btn-outline-danger" title="Report user">🚩</button>#}
+  <div class="card mb-3">
+    <div class="card-header">
+      <h5>
+        <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=message.author_name) }}">@{{ message.author_name }}</a>{% if message.author.is_verified %} <span title="This user is verified.">✅</span>{% endif %}{% if message.author_name == message.constellation.owner_name %} <span title="This user owns this constellation.">👑</span>{% endif %}
+        ➔
+        <a class="link-underline link-underline-opacity-0" href="{{ url_for('constellation', name=message.constellation_name) }}">*{{ message.constellation_name }}</a>
+      </h5>
+      <hr />
+      <h4>{{ message.title }}</h4>
+    </div>
+    <div class="card-body">
+      <p class="card-text">{{ markdowner.convert(message.content).replace('<table>', '<table class="table table-sm">')|safe }}</p>
+      <div class="btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
+        {% if message.author_name == current_user.id or message.constellation.owner_name == current_user.id %}
+        <div class="btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
+          {% if message.author_name == current_user.id %}
+          <a class="btn btn-outline-secondary" href="{{ url_for('edit_message', uuid=message.uuid) }}" title="Edit post">✏️</a>
+          {% endif %}
+          <a class="btn btn-outline-danger" href="{{ url_for('delete_message', uuid=message.uuid) }}" title="Delete post">🗑️</a>
+          {#<button type="button" class="btn btn-outline-danger" title="Report user">🚩</button>#}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card-footer text-body-secondary">
+      2 days ago
+    </div>  
   </div>
-  {% endif %}
-  <p>{{ markdowner.convert(message.content).replace('<table>', '<table class="table table-sm">')|safe }}</p>
+  <h3>Replies</h3>
+  <form class="mb-3" method="post" enctype="multipart/form-data">
+    <div class="mb-2">
+      <textarea type="text" class="form-control" id="exampleInputEmail1" placeholder="Reply to @{{ message.author_name }}" aria-describedby="emailHelp" name="message_content" required></textarea>
+      <div id="emailHelp" class="form-text">{% include 'markdown-mark.svg.html' %} You may use Markdown if you wish. You may send messages up to 1024 characters. You may not edit attachments.</div>
+    </div>
+    <button type="submit" class="btn btn-primary">Reply</button>
+  </form>
+  {% for reply in message.replies %}
+  <div class="card mb-3">
+    <h5 class="card-header">@tasty.kiwi</h5>
+    <div class="card-body">
+      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+      <div class="btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
+        <a href="#" class="btn btn-outline-secondary">✏️</a>
+        <a href="#" class="btn btn-outline-danger">🗑️</a>
+      </div>
+    </div>
+    <div class="card-footer text-body-secondary">
+      2 days ago
+    </div>  
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}
