@@ -345,9 +345,6 @@ def edit_message(uuid):
     if current_user.id != message.author_name:
         return "Unauthorized", 401
     if request.method == 'POST':
-        print(current_user.id)
-        print(message.author_name)
-        
         message_content = request.form.get("message_content")
         title = request.form.get("title")
         db.session.query(Message).filter_by(uuid=uuid).update({Message.content: message_content, Message.title: title})
@@ -357,6 +354,35 @@ def edit_message(uuid):
         return redirect(url_for('message', uuid=uuid))
     
     return render_template('message/edit.html', message=message)
+
+@app.route('/reply/<uuid:uuid>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_reply(uuid):
+    reply = db.get_or_404(Reply, uuid)
+    if current_user.id != reply.author_name:
+        return "Unauthorized", 401
+    if request.method == 'POST':
+        reply_content = request.form.get("reply_content")
+        db.session.query(Reply).filter_by(uuid=uuid).update({Reply.content: reply_content})
+        db.session.commit()
+
+        flash('Message successfully edited!', category='success')
+        return redirect(url_for('message', uuid=reply.message_uuid))
+    
+    return render_template('message/edit_reply.html', reply=reply)
+
+@app.route('/reply/<uuid:uuid>/delete')
+@login_required
+def delete_reply(uuid):
+    reply = db.get_or_404(Reply, uuid)
+    message_uuid = reply.message_uuid
+    if current_user.id == reply.author_name or current_user.id == reply.constellation.owner_name:
+        db.session.query(Reply).filter_by(uuid=uuid).delete()
+        db.session.commit()
+        flash('Reply successfully deleted!', category='success')
+        return redirect(url_for('message', uuid=message_uuid))
+    
+    return "Unauthorized", 401
 
 #! file uploads are currently disabled
 # @app.route('/user-media/<string:name>')
@@ -403,9 +429,10 @@ def edit_password():
 def delete_user():
     user = current_user
     logout_user()
+    
     db.session.query(Message).filter_by(author_name=user.id).delete()
     db.session.query(Reply).filter_by(author_name=user.id).delete()
-    db.session.query(Reply).filter_by(original_author_name=user.id).delete()
+    # db.session.query(Reply).filter_by(original_author_name=user.id).delete()
     db.session.query(User).filter_by(id=user.id).delete()
     db.session.query(Constellation).filter_by(owner_name=user.id).delete()
     db.session.commit()

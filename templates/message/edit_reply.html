@@ -1,0 +1,13 @@
+{% extends "base.html" %} {% block title %}Edit reply{% endblock %} {% block theme %}dark{% endblock %}
+{% block body %}
+<div class="container">
+  <h1>Edit a reply</h1>
+  <form class="mb-2" method="post" enctype="multipart/form-data">
+    <div class="mb-2">
+      <textarea type="text" class="form-control" style="height: 350px" placeholder="Edit reply" aria-describedby="emailHelp" name="reply_content" required>{{ reply.content }}</textarea>
+      <div id="emailHelp" class="form-text">{% include 'markdown-mark.svg.html' %} You may use Markdown if you wish. You may send messages up to 1024 characters. You may not edit attachments.</div>
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+  </form>
+</div>
+{% endblock %}
