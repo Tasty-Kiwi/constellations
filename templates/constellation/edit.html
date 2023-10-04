@@ -9,7 +9,19 @@
       aria-describedby="basic-addon1"
       name="description"
       value="{{ constellation.description }}"
+      maxlength="256"
+      _="
+        on input set :chars_left to 256 - me.value.length then put :chars_left into #textarea-length
+        if :chars_left <= 0 then
+          add .text-warning to #textarea-length
+          remove .text-info from #textarea-length
+        else
+          remove .text-warning from #textarea-length
+          add .text-info to #textarea-length
+        end
+      "
       required />
+    <div id="textarea-length" class="form-text text-info"></div>
     <div class="form-text">The description must not be longer than 256 characters.</div>
   </div>
   <div class="mb-3 form-check">

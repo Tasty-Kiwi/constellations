@@ -3,7 +3,7 @@
 <h1>Register to 🌃 Constellations</h1>
 <form method="post">
   <div class="mb-3">
-    <label for="exampleInputEmail1" class="form-label">Username</label>
+    <label for="exampleInputEmail1" id="username" class="form-label">Username</label>
     <div class="input-group">
       <span class="input-group-text">@</span>
       <input
@@ -11,6 +11,20 @@
         class="form-control"
         aria-describedby="basic-addon1"
         name="username"
+        _="
+          on input
+          if me.value is not empty then
+            if compareRegex(me.value) is true then
+              remove @disabled='' from #submit-button
+              remove .text-warning from #username
+              add .text-info to #username
+            else
+              add @disabled='' to #submit-button
+              add .text-warning to #username
+              remove .text-info from #username
+            end
+          end
+        "
         required />
     </div>
     <div id="emailHelp" class="form-text">
@@ -27,7 +41,7 @@
     <label for="exampleInputPassword1" class="form-label">Password</label>
     <input type="password" class="form-control" id="exampleInputPassword1" name="password">
   </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
+  <button type="submit" id="submit-button" class="btn btn-primary" disabled>Submit</button>
 </form>
 <p>Already a member? <a href="{{ url_for('login') }}">Login.</a></p>
 {% endblock %}

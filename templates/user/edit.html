@@ -3,8 +3,21 @@
 <form method="post" class="mb-3">
   <div class="mb-3">
     <label for="bio" class="form-label">Bio</label>
-    <textarea type="text" class="form-control" id="bio" style="height: 200px" aria-describedby="basic-addon1" name="bio" required>{{ user.bio }}</textarea>
-    <div class="form-text"><i class="bi bi-markdown"></i> You may use Markdown if you wish. The bio must not be longer than 256 characters.</div>
+    <textarea type="text" class="form-control" id="bio" style="height: 200px" aria-describedby="basic-addon1" name="bio"
+    _="
+      on input set :chars_left to 512 - me.value.length then put :chars_left into #textarea-length
+      if :chars_left <= 0 then
+        add .text-warning to #textarea-length
+        remove .text-info from #textarea-length
+      else
+        remove .text-warning from #textarea-length
+        add .text-info to #textarea-length
+      end
+    "
+    maxlength="512"
+    required>{{ user.bio }}</textarea>
+    <div id="textarea-length" class="form-text text-info">512</div>
+    <div class="form-text"><i class="bi bi-markdown"></i> You may use Markdown if you wish. The bio must not be longer than 512 characters.</div>
   </div>
   <div class="mb-3">
     <label for="email" class="form-label">Email</label>
@@ -26,6 +39,7 @@
       aria-describedby="basic-addon1"
       name="blabber_url"
       value="{{ user.blabber_url }}"
+      maxlength="64"
       />
       <div class="form-text">Constellations works best with <a class="link-underline link-underline-opacity-0" href="https://blabber.fly.dev/" target="_blank">Blabber</a>.</div>
   </div>
@@ -36,6 +50,7 @@
       class="form-control"
       aria-describedby="basic-addon1"
       name="location"
+      maxlength="64"
       value="{{ user.location }}"
       />
       <div class="form-text">The location can be anything. Up to 64 characters.</div>
@@ -47,6 +62,7 @@
       class="form-control"
       aria-describedby="basic-addon1"
       name="website"
+      maxlength="64"
       value="{{ user.website }}"
       />
       <div class="form-text">Your personal website, <a class="link-underline link-underline-opacity-0" href="https://omg.lol/" target="_blank">omg.lol</a> page or your discord server link. We don't care, as long as it's not anything illegal.</div>

@@ -55,8 +55,21 @@
     <div class="card-body">
       <form class="mb-3" method="post" enctype="multipart/form-data">
         <div class="mb-2">
-          <textarea type="text" class="form-control" style="height: 150px" placeholder="Reply to @{{ message.author_name }}" aria-describedby="emailHelp" name="reply_content" required></textarea>
-          <div id="emailHelp" class="form-text"><i class="bi bi-markdown"></i> You may use Markdown if you wish. You may send messages up to 1024 characters. You may not edit attachments.</div>
+          <textarea type="text" class="form-control" style="height: 150px" placeholder="Reply to @{{ message.author_name }}" aria-describedby="emailHelp" name="reply_content"
+          maxlength="1024"
+          _="
+            on input set :chars_left to 1024 - me.value.length then put :chars_left into #textarea-length
+            if :chars_left <= 0 then
+              add .text-warning to #textarea-length
+              remove .text-info from #textarea-length
+            else
+              remove .text-warning from #textarea-length
+              add .text-info to #textarea-length
+            end
+          "
+          required></textarea>
+          <div id="textarea-length" class="form-text text-info">1024</div>
+          <div class="form-text"><i class="bi bi-markdown"></i> You may use Markdown if you wish. You may send messages up to 1024 characters. You may not edit attachments.</div>
         </div>
         <button type="submit" class="btn btn-primary"><i class="bi bi-envelope-arrow-up"></i> Reply</button>
       </form>

@@ -11,11 +11,36 @@
         name="title"
         placeholder="Title"
         value="{{ message.title }}"
+        _="
+          on input set :chars_left to 128 - me.value.length then put :chars_left into #title-length
+          if :chars_left <= 0 then
+            add .text-warning to #title-length
+            remove .text-info from #title-length
+          else
+            remove .text-warning from #title-length
+            add .text-info to #title-length
+          end
+        "
+        maxlength="128"
         required />
-      <div id="emailHelp" class="form-text">You may have a title up to 128 characters. You may not use Markdown.</div>
+      <div id="title-length" class="form-text text-info"></div>
+      <div class="form-text">You may have a title up to 128 characters. You may not use Markdown.</div>
     </div>
     <div class="mb-2">
-      <textarea type="text" class="form-control" style="height: 350px" placeholder="{{ ['What a nice day!', 'Share your thoughts!', 'Ready to tell something? 😊', 'Tell *'+ message.constellation_name + ' what\'s happening today']|random }}" aria-describedby="emailHelp" name="message_content" required>{{ message.content }}</textarea>
+      <textarea type="text" class="form-control" style="height: 350px" placeholder="{{ ['What a nice day!', 'Share your thoughts!', 'Ready to tell something? 😊', 'Tell *'+ message.constellation_name + ' what\'s happening today']|random }}" aria-describedby="emailHelp" name="message_content"
+      maxlength="4096"
+      _="
+        on input set :chars_left to 4096 - me.value.length then put :chars_left into #textarea-length
+        if :chars_left <= 0 then
+          add .text-warning to #textarea-length
+          remove .text-info from #textarea-length
+        else
+          remove .text-warning from #textarea-length
+          add .text-info to #textarea-length
+        end
+      "
+      required>{{ message.content }}</textarea>
+      <div id="textarea-length" class="form-text text-info"></div>
       <div id="emailHelp" class="form-text"><i class="bi bi-markdown"></i> You may use Markdown if you wish. You may send messages up to 4096 characters. You may not edit attachments.</div>
     </div>
     <button type="submit" class="btn btn-primary">Update</button>

@@ -2,7 +2,7 @@
 <h1>Create a new constellation</h1>
 <form method="post">
   <div class="mb-3">
-    <label for="constellation_name" class="form-label">Constellation name</label>
+    <label for="constellation_name" id="constellation-name" class="form-label">Constellation name</label>
     <div class="input-group">
       <span class="input-group-text">*</span>
       <input
@@ -11,6 +11,21 @@
         aria-describedby="basic-addon1"
         id="constellation_name"
         name="constellation_name"
+        maxlength="16"
+        _="
+          on input
+          if me.value is not empty then
+            if compareRegex(me.value) is true then
+              remove .text-warning from #constellation-name
+              remove @disabled='' from #submit-button
+              add .text-info to #constellation-name
+            else
+              add .text-warning to #constellation-name
+              add @disabled='' to #submit-button
+              remove .text-info from #constellation-name
+            end
+          end
+        "
         required />
     </div>
     <div class="form-text">
@@ -25,7 +40,19 @@
       class="form-control"
       aria-describedby="basic-addon1"
       name="description"
+      maxlength="256"
+      _="
+        on input set :chars_left to 256 - me.value.length then put :chars_left into #textarea-length
+        if :chars_left <= 0 then
+          add .text-warning to #textarea-length
+          remove .text-info from #textarea-length
+        else
+          remove .text-warning from #textarea-length
+          add .text-info to #textarea-length
+        end
+      "
       required />
+      <div id="textarea-length" class="form-text text-info">256</div>
     <div class="form-text">The description must not be longer than 256 characters. This option can be changed later.</div>
   </div>
   <div class="mb-3 form-check">
@@ -35,6 +62,6 @@
       Private constellations are not published to the list. This option can be changed later.
     </div>
   </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
+  <button type="submit" id="submit-button" class="btn btn-primary" disabled>Submit</button>
 </form>
 {% endblock %}
