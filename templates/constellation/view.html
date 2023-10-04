@@ -9,18 +9,15 @@
     <div class="card-text mb-3">
       Owned by <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=constellation.owner_name) }}">@{{ constellation.owner_name }}</a> {% if constellation.owner.is_verified %}<span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span>{% endif %}
     </div>
-    {% if constellation.owner_name == current_user.id %}
     <div class="btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
+      {% if constellation.owner_name == current_user.id or member_info.is_moderator %}
       <a class="btn btn-outline-secondary" href="{{ url_for('edit_constellation', name=constellation.name) }}" title="Settings"><i class="bi bi-gear"></i></a>
-      {#<button type="button" class="btn btn-outline-danger" title="Report constellation">🚩</button>#}
-    </div>
-    {% endif %}
-    {% if constellation.owner_name != current_user.id %}
-    <div class="btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
+      {% endif %}
+      {% if constellation.owner_name != current_user.id %}
       <a class="btn btn-outline-danger" href="{{ url_for('leave_constellation', name=constellation.name) }}">Leave</a>
+      {% endif %}
       {#<button type="button" class="btn btn-outline-danger" title="Report constellation">🚩</button>#}
     </div>
-    {% endif %}
     <form class="mt-3" method="post" enctype="multipart/form-data">
       <div class="mb-2">
         <input
@@ -50,7 +47,7 @@
   <ul class="list-group list-group-flush">
   {% for message in constellation.belonging_messages|reverse %}
   <li class="list-group-item"><a class="link-underline link-underline-opacity-0" href="{{ url_for('message', uuid=message.uuid) }}">{{ message.title }}</a> by 
-    <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=message.author_name) }}">@{{ message.author_name }}</a>{% if message.author.is_verified %} <span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span>{% endif %}{% if message.author_name == message.constellation.owner_name %} <span title="This user owns this constellation."><i class="bi bi-person-gear"></i></span>{% endif %}
+    <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=message.author_name) }}">@{{ message.author_name }}</a>{% if message.author.is_verified %} <span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span>{% endif %}{% if message.author_name == message.constellation.owner_name %} <span title="This user owns this constellation."><i class="bi bi-person-gear"></i></span>{% endif %}{% if Member.query.filter_by(constellation_name=constellation.name, user_name=message.author_name).one().is_moderator %} <span title="This user moderates this constellation."><i class="bi bi-person-badge"></i></span>{% endif %}
     <div class="form-text">2 days ago</div>
   </li>
   {% endfor %}

@@ -13,21 +13,23 @@
     <div class="form-text">The description must not be longer than 256 characters.</div>
   </div>
   <div class="mb-3 form-check">
-    <input type="checkbox" class="form-check-input" name="is_private" {% if constellation.is_private %}checked{% endif %} />
+    <input type="checkbox" class="form-check-input" name="is_private" {% if constellation.is_private %}checked{% endif %} {% if current_user.id != constellation.owner_name %}disabled{% endif %}/>
     <label class="form-check-label" for="exampleCheck1">Is private?</label>
     <div class="form-text">
-      Private constellations are not published to the list. This option can be changed later.
+      Private constellations are not published to the list. Moderators cannot change this option.
     </div>
   </div>
   <button type="submit" class="btn btn-primary">Update</button>
 </form>
 <h3>Invite link</h3>
 <code>{{ url_for('invite', uuid=constellation.belonging_invites[0].uuid) }}</code>
+{% if current_user.id == constellation.owner_name %}
 <h3>Danger zone</h3>
 <a class="btn btn-danger" href="{{ url_for('delete_constellation', name=constellation.name) }}">Delete *{{ constellation.name }}</a>
 <div class="form-text">
   This action is irreversible. All data, related to this constellation, including messages, will be deleted.
 </div>
+{% endif %}
 <h3 class="mt-3">Members:</h3>
 <table class="table">
   <thead>
@@ -45,9 +47,11 @@
       <td>
         {% if member.user_name != constellation.owner_name %}
         <div class="btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
-          <a class="btn btn-outline-danger" href="#" title="Toggle mod status"><i class="bi bi-person-badge" style="font-size: 1rem;"></i></a>
-          <a class="btn btn-outline-danger" href="#" title="Transfer ownership"><i class="bi bi-person-gear" style="font-size: 1rem;"></i></a>
-          <a class="btn btn-outline-danger" href="#" title="Kick"><i class="bi bi-person-x" style="font-size: 1rem;"></i></a>
+          {% if member.user_name == constellation.owner_name %}
+          <a class="btn btn-outline-danger" href="{{ url_for('toggle_mod', name=constellation.name, id=member.user_name) }}"><i class="bi bi-person-badge" style="font-size: 1rem;"></i> Toggle mod status</a>
+          <a class="btn btn-outline-danger" href="{{ url_for('set_owner', name=constellation.name, id=member.user_name) }}"><i class="bi bi-person-gear" style="font-size: 1rem;"></i> Transfer ownership</a>
+          {% endif %}
+          <a class="btn btn-outline-danger" href="{{ url_for('kick_user', name=constellation.name, id=member.user_name) }}"><i class="bi bi-person-x" style="font-size: 1rem;"></i> Kick</a>
           {#<a class="btn btn-outline-danger" href="#" title="Ban">🔨</a>#}
           {#<button type="button" class="btn btn-outline-danger" title="Report user">🚩</button>#}  
         </div>

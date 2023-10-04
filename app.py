@@ -264,26 +264,72 @@ def constellation(name):
         return redirect(url_for('constellation', name=name))
     
     constellation = db.get_or_404(Constellation, name)
-    return render_template("constellation/view.html", constellation=constellation, markdowner=markdowner)
+    member_info = db.session.query(Member).filter_by(constellation_name=name, user_name=current_user.id).one()
+    return render_template("constellation/view.html", constellation=constellation, member_info=member_info, Member=Member, markdowner=markdowner)
 
 @app.route('/*/<string:name>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_constellation(name):
     constellation = db.get_or_404(Constellation, name)
-    if current_user.id != constellation.owner_name:
+    member_info = db.session.query(Member).filter_by(constellation_name=name, user_name=current_user.id).one()
+    if current_user.id != constellation.owner_name and member_info.is_moderator != True:
         return "Unauthorized", 401
     if request.method == 'POST':
         description = request.form.get("description")
-        if request.form.get("is_private") == 'on':
-            is_private = True
+        if member_info.is_moderator and current_user.id != constellation.owner_name:
+            db.session.query(Constellation).filter_by(name=name).update({Constellation.description: description})
+            db.session.commit()
         else:
-            is_private = False
-        db.session.query(Constellation).filter_by(name=name).update({Constellation.description: description, Constellation.is_private: is_private})
-        db.session.commit()
+            if request.form.get("is_private") == 'on':
+                is_private = True
+            else:
+                is_private = False
+            db.session.query(Constellation).filter_by(name=name).update({Constellation.description: description, Constellation.is_private: is_private})
+            db.session.commit()
         flash('Constellation successfully edited!', category='success')
         return redirect(url_for('constellation', name=name))
+    return render_template("constellation/edit.html", constellation=constellation, member_info=member_info)
+
+@app.route('/constellation/<string:name>/set_owner/<string:id>')
+@login_required
+def set_owner(name, id):
+    constellation = db.get_or_404(Constellation, name)
+    user = db.get_or_404(User, id)
+    if current_user.id != constellation.owner_name:
+        return "Unauthorized", 401
     
-    return render_template("constellation/edit.html", constellation=constellation)
+    db.session.query(Constellation).filter_by(name=name).update({Constellation.owner_name: id})
+    db.session.commit()
+    flash('Transferred ownership!', category='success')
+    return redirect(url_for('constellation', name=name))
+
+@app.route('/constellation/<string:name>/kick/<string:id>')
+@login_required
+def kick_user(name, id):
+    constellation = db.get_or_404(Constellation, name)
+    user = db.get_or_404(User, id)
+    if current_user.id != constellation.owner_name:
+        return "Unauthorized", 401
+    
+    db.session.query(Member).filter_by(constellation_name=name, user_name=id).delete()
+    db.session.commit()
+    flash('User has been kicked!', category='success')
+    return redirect(url_for('edit_constellation', name=name))
+
+@app.route('/constellation/<string:name>/toggle_mod/<string:id>')
+@login_required
+def toggle_mod(name, id):
+    constellation = db.get_or_404(Constellation, name)
+    user = db.get_or_404(User, id)
+    if current_user.id != constellation.owner_name:
+        return "Unauthorized", 401
+    
+    member_data = db.session.query(Member).filter_by(constellation_name=name, user_name=id).one()
+    db.session.query(Member).filter_by(constellation_name=name, user_name=id).update({Member.is_moderator: not member_data.is_moderator})
+    db.session.commit()
+    flash('Mod status edited!', category='success')
+    return redirect(url_for('edit_constellation', name=name))
+
 
 @app.route('/*/<string:name>/leave')
 @login_required
@@ -334,13 +380,15 @@ def message(uuid):
         db.session.commit()
         flash('Replied successfully!', category='success')
         return redirect(url_for('message', uuid=uuid))
-    return render_template("message/view.html", message=message, markdowner=markdowner)
+    member_info = db.session.query(Member).filter_by(constellation_name=message.constellation_name, user_name=current_user.id).one()
+    return render_template("message/view.html", message=message, member_info=member_info, Member=Member, markdowner=markdowner)
 
 @app.route('/msg/<uuid:uuid>/delete')
 @login_required
 def delete_message(uuid):
     message = db.get_or_404(Message, uuid)
-    if current_user.id == message.author_name or current_user.id == message.constellation.owner_name:
+    member_info = db.session.query(Member).filter_by(constellation_name=message.constellation_name, user_name=current_user.id).one()
+    if current_user.id == message.author_name or current_user.id == message.constellation.owner_name or member_info.is_moderator:
         db.session.query(Message).filter_by(uuid=uuid).delete()
         db.session.query(Reply).filter_by(message_uuid=uuid).delete()
         db.session.commit()
@@ -386,8 +434,9 @@ def edit_reply(uuid):
 @login_required
 def delete_reply(uuid):
     reply = db.get_or_404(Reply, uuid)
+    member_info = db.session.query(Member).filter_by(constellation_name=reply.constellation_name, user_name=current_user.id).one()
     message_uuid = reply.message_uuid
-    if current_user.id == reply.author_name or current_user.id == reply.constellation.owner_name:
+    if current_user.id == reply.author_name or current_user.id == reply.constellation.owner_name or member_info.is_moderator:
         db.session.query(Reply).filter_by(uuid=uuid).delete()
         db.session.commit()
         flash('Reply successfully deleted!', category='success')
