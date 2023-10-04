@@ -30,7 +30,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = config["sqlalchemy_database_uri"]
 app.config['MAX_CONTENT_LENGTH'] = config["max_content_length"]
 
 # TODO: add @ and * syntaxes
-pattern = re.compile(
+link_pattern = re.compile(
     r"""
         \b
         (
@@ -44,9 +44,13 @@ pattern = re.compile(
     re.X
 )
 
+#user_pattern = re.compile(r"[@]([a-z0-9.]{0,16})", re.X)
+#constellation_pattern = re.compile(r"[!]([a-z0-9.]{0,16})", re.X) # `*` is used in markdown
+
 class Base(DeclarativeBase):
     pass
 
+name_pattern = re.compile(r"[a-z0-9.]+")
 
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
@@ -57,7 +61,10 @@ login_manager.login_view = 'login'
 login_manager.login_message_category = "info"
 login_manager.init_app(app)
 
-markdowner = Markdown(extras=config["markdown_extras"], link_patterns=[(pattern, r'\1')], safe_mode=True)
+#! The regex is kinda broken
+# markdowner = Markdown(extras=config["markdown_extras"], link_patterns=[(link_pattern, r'\1'), (user_pattern, r'/@/\1'), (constellation_pattern, r'/*/\1')], safe_mode=True)
+markdowner = Markdown(extras=config["markdown_extras"], link_patterns=[(link_pattern, r'\1')], safe_mode=True)
+
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
@@ -149,7 +156,12 @@ def register():
         user = User.query.filter_by(email=request.form.get("email")).first() 
         if user:
             flash("Such email already exists!", category="warning")
-            return redirect(url_for('signup'))
+            return redirect(url_for('register'))
+
+        username = request.form["username"]
+        if re.match(name_pattern, username) != None or re.match(name_pattern, username)[0] != username:
+            flash("Illegal username.", category="danger")
+            return redirect(url_for('register'))
 
         user = User(
             id=request.form["username"],
@@ -190,6 +202,10 @@ def login():
 def create():
     if request.method == "POST":
         constellation_name = request.form.get("constellation_name")
+        if re.match(name_pattern, constellation_name) == None or re.match(name_pattern, constellation_name)[0] != constellation_name:
+            flash("Illegal constellation name.", category="danger")
+            return redirect(url_for('create'))
+
         if request.form.get("is_private") == 'on':
             is_private = True
         else:
@@ -197,7 +213,7 @@ def create():
         user = current_user
         constellation = Constellation(
             name=constellation_name,
-            description=request.form.get("description"),
+            description=request.form.get("description")[0:256],
             is_private=is_private,
             owner=user
         )
@@ -233,8 +249,8 @@ def constellation(name):
         return redirect(url_for('index'))
     if request.method == "POST":
         constellation = db.get_or_404(Constellation, name)
-        message_content = request.form.get("message_content")
-        title = request.form.get("title")
+        message_content = request.form.get("message_content")[0:4096]
+        title = request.form.get("title")[0:128]
 
         user = current_user
 
@@ -275,7 +291,7 @@ def edit_constellation(name):
     if current_user.id != constellation.owner_name and member_info.is_moderator != True:
         return "Unauthorized", 401
     if request.method == 'POST':
-        description = request.form.get("description")
+        description = request.form.get("description")[0:256]
         if member_info.is_moderator and current_user.id != constellation.owner_name:
             db.session.query(Constellation).filter_by(name=name).update({Constellation.description: description})
             db.session.commit()
@@ -368,7 +384,7 @@ def message(uuid):
         flash("You are not invited!", category="warning")
         return redirect(url_for('index'))
     if request.method == 'POST':
-        reply_content = request.form.get("reply_content")
+        reply_content = request.form.get("reply_content")[0:1024]
         reply = Reply(
             uuid=uuid4(),
             author=current_user,
@@ -404,7 +420,7 @@ def edit_message(uuid):
     if current_user.id != message.author_name:
         return "Unauthorized", 401
     if request.method == 'POST':
-        message_content = request.form.get("message_content")
+        message_content = request.form.get("message_content")[0:4096]
         title = request.form.get("title")
         db.session.query(Message).filter_by(uuid=uuid).update({Message.content: message_content, Message.title: title})
         db.session.commit()
@@ -421,7 +437,7 @@ def edit_reply(uuid):
     if current_user.id != reply.author_name:
         return "Unauthorized", 401
     if request.method == 'POST':
-        reply_content = request.form.get("reply_content")
+        reply_content = request.form.get("reply_content")[0:1024]
         db.session.query(Reply).filter_by(uuid=uuid).update({Reply.content: reply_content})
         db.session.commit()
 
@@ -459,11 +475,11 @@ def user(name):
 def edit_user():
     user = current_user
     if request.method == 'POST':
-        bio = request.form.get("bio")
+        bio = request.form.get("bio")[0:512]
         email = request.form.get("email")
-        blabber_url = request.form.get("blabber_url")
-        website = request.form.get("website")
-        location = request.form.get("location")
+        blabber_url = request.form.get("blabber_url")[0:64]
+        website = request.form.get("website")[0:64]
+        location = request.form.get("location")[0:64]
 
         db.session.query(User).filter_by(id=user.id).update({User.bio: bio, User.email: email, User.blabber_url: blabber_url, User.website: website, User.location: location})
         db.session.commit()
