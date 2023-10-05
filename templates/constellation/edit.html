@@ -35,6 +35,7 @@
 </form>
 <h3>Invite link</h3>
 <code>{{ url_for('invite', uuid=constellation.belonging_invites[0].uuid) }}</code>
+<a class="btn btn-info" href="{{ url_for('regen_invite', name=constellation.name) }}">Regenerate</a>
 {% if current_user.id == constellation.owner_name %}
 <h3>Danger zone</h3>
 <a class="btn btn-danger" href="{{ url_for('delete_constellation', name=constellation.name) }}">Delete *{{ constellation.name }}</a>

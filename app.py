@@ -159,12 +159,14 @@ def register():
             return redirect(url_for('register'))
 
         username = request.form["username"]
-        if re.match(name_pattern, username) != None or re.match(name_pattern, username)[0] != username:
-            flash("Illegal username.", category="danger")
-            return redirect(url_for('register'))
+        
+        #! Currently broken
+        # if re.match(name_pattern, username) != None or re.match(name_pattern, username)[0] != username:
+        #     flash("Illegal username.", category="danger")
+        #     return redirect(url_for('register'))
 
         user = User(
-            id=request.form["username"],
+            id=username,
             email=request.form["email"],
             password_hash=bcrypt.generate_password_hash(request.form["password"]).decode('utf-8'),
             bio="Edit me!",
@@ -546,6 +548,21 @@ def invite_join(uuid):
     db.session.commit()
     flash(f"Joined to *{invite.constellation_name}!", category='success')
     return redirect(url_for("constellation", name=invite.constellation_name))
+
+@app.route('/*/<string:name>/regen_invite')
+@login_required
+def regen_invite(name):
+    constellation = db.get_or_404(Constellation, name)
+    member_info = db.session.query(Member).filter_by(constellation_name=name, user_name=current_user.id).one()
+    if current_user.id != constellation.owner_name and member_info.is_moderator != True:
+        return "Unauthorized", 401
+    
+    invite: Invite = constellation.belonging_invites[0]
+    new_uuid = uuid4()
+    Invite.query.filter_by(uuid=invite.uuid).update({Invite.uuid: new_uuid})
+    db.session.commit()
+    flash(f"Changed the invite link!", category='success')
+    return redirect(url_for("edit_constellation", name=name))
 
 
 @app.route('/extra_styles.css')
