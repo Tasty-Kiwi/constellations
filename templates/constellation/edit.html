@@ -60,7 +60,7 @@
       <td>
         {% if member.user_name != constellation.owner_name %}
         <div class="btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
-          {% if member.user_name == constellation.owner_name %}
+          {% if member_info.is_moderator %}
           <a class="btn btn-outline-danger" href="{{ url_for('toggle_mod', name=constellation.name, id=member.user_name) }}"><i class="bi bi-person-badge" style="font-size: 1rem;"></i> Toggle mod status</a>
           <a class="btn btn-outline-danger" href="{{ url_for('set_owner', name=constellation.name, id=member.user_name) }}"><i class="bi bi-person-gear" style="font-size: 1rem;"></i> Transfer ownership</a>
           {% endif %}
