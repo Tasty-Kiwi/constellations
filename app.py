@@ -72,10 +72,10 @@ class User(UserMixin, db.Model):
     id: Mapped[str] = mapped_column(String(16), primary_key=True, unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
-    bio: Mapped[str] = mapped_column(String(256))
+    bio: Mapped[str] = mapped_column(String(512))
     blabber_url: Mapped[str] = mapped_column(String(64))
     location: Mapped[str] = mapped_column(String(64))
-    website: Mapped[str] = mapped_column(String(64))
+    website: Mapped[str] = mapped_column(String(128))
     #! Warning: relationship 'Constellation.owner' will copy column user.name to column constellation.owner_name,
     #! which conflicts with relationship(s): 'User.owned_constellations' (copies user.name to constellation.owner_name).
     #! https://sqlalche.me/e/20/qzyx
@@ -112,7 +112,7 @@ class Reply(db.Model):
     uuid: Mapped[Uuid] = mapped_column(Uuid, primary_key=True)
     author_name: Mapped[str] = mapped_column(ForeignKey("user.id"))
     author: Mapped['User'] = relationship('User', backref='reply')
-    content: Mapped[str] = mapped_column(String(4096))
+    content: Mapped[str] = mapped_column(String(1024))
     constellation_name: Mapped[str] = mapped_column(ForeignKey('constellation.name'))
     constellation: Mapped['Constellation'] = relationship('Constellation', backref='reply')
     message_uuid: Mapped[Uuid] = mapped_column(ForeignKey('message.uuid'))
@@ -159,7 +159,7 @@ def register():
             return redirect(url_for('register'))
 
         username = request.form["username"]
-        
+
         #! Currently broken
         # if re.match(name_pattern, username) != None or re.match(name_pattern, username)[0] != username:
         #     flash("Illegal username.", category="danger")
@@ -181,7 +181,6 @@ def register():
         return redirect(url_for('index'))
 
     return render_template("register.html")
-
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -326,7 +325,8 @@ def set_owner(name, id):
 def kick_user(name, id):
     constellation = db.get_or_404(Constellation, name)
     user = db.get_or_404(User, id)
-    if current_user.id != constellation.owner_name:
+    member_info = db.session.query(Member).filter_by(constellation_name=name, user_name=current_user.id).one()
+    if current_user.id != constellation.owner_name and member_info.is_moderator != True:
         return "Unauthorized", 401
     
     db.session.query(Member).filter_by(constellation_name=name, user_name=id).delete()
@@ -347,7 +347,6 @@ def toggle_mod(name, id):
     db.session.commit()
     flash('Mod status edited!', category='success')
     return redirect(url_for('edit_constellation', name=name))
-
 
 @app.route('/*/<string:name>/leave')
 @login_required
@@ -480,7 +479,7 @@ def edit_user():
         bio = request.form.get("bio")[0:512]
         email = request.form.get("email")
         blabber_url = request.form.get("blabber_url")[0:64]
-        website = request.form.get("website")[0:64]
+        website = request.form.get("website")[0:128]
         location = request.form.get("location")[0:64]
 
         db.session.query(User).filter_by(id=user.id).update({User.bio: bio, User.email: email, User.blabber_url: blabber_url, User.website: website, User.location: location})

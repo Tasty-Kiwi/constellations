@@ -25,8 +25,7 @@
 <div class="card mb-3">
   <h4 class="card-header">@{{user.id}}{% if user.is_verified %} <span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span>{% endif %}</h4>
   <div class="card-body">
-    <h5 class="card-title">Bio:</h5>
-    <p class="card-text">{{ markdowner.convert(user.bio).replace('<table>', '<table class="table table-sm">')|safe}}</p>
+    {{ markdowner.convert(user.bio).replace('<table>', '<table class="table table-sm">')|safe}}
   </div>
     <ul class="list-group list-group-flush">
       {% if user.location|length > 0 %}
