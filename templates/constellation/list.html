@@ -1,22 +1,18 @@
 {% extends "base.html" %} {% block title %}List{% endblock %} {% block theme %}dark{% endblock %}
 {% block body %}
-<h1>Public constellations 🌃</h1>
-<table class="table">
-  <thead>
-    <tr>
-      <th scope="col">Name</th>
-      <th scope="col">Description</th>
-      <th scope="col">Owner</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for constellation in constellation_list|reverse %}
-      <tr>
-        <th scope="row"><a class="link-underline link-underline-opacity-0" href="{{ url_for('invite', uuid=constellation.belonging_invites[0].uuid) }}">*{{constellation.name}}</a></th>
-        <td>{{ constellation.description }}</td>
-        <td><a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=constellation.owner_name) }}">@{{ constellation.owner_name }}</a>{% if constellation.owner.is_verified %} <span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span>{% endif %}</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<div class="card">
+  <h3 class="card-header">Public constellations 🌃</h3>
+  <ul class="list-group list-group-flush">
+  {% for constellation in constellation_list|reverse %}
+  <li class="list-group-item">
+    <a class="link-underline link-underline-opacity-0" href="{{ url_for('invite', uuid=constellation.belonging_invites[0].uuid) }}">*{{constellation.name}}</a> by 
+    <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=constellation.owner_name) }}">@{{ constellation.owner_name }}</a>{% if constellation.owner.is_verified %} <span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span>{% endif %}
+    <p class="fst-italic">{{ constellation.description }}</p>
+    <div class="form-text">
+      Created at {{ constellation.created_at.strftime('%b %d, %Y %H:%M UTC') }}
+    </div>
+  </li>
+  {% endfor %}
+  </ul>
+</div>
 {% endblock %}

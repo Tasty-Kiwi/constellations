@@ -32,7 +32,7 @@
   <body data-bs-theme="{% block theme required %}{% endblock %}">
     <nav class="navbar navbar-expand-lg bg-body-tertiary mb-2">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/">🌃 Constellations</a>
+        <a class="navbar-brand" href="/">🌃 Constellations <span class="badge text-bg-secondary">Alpha</span></a>
         <button
           class="navbar-toggler"
           type="button"
@@ -62,7 +62,7 @@
                 role="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false">
-                Constellations you're part of
+                Your constellations
               </a>
               <ul class="dropdown-menu">
                 {% for member in current_user.is_member_of %}
