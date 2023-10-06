@@ -47,7 +47,10 @@
       </div>
     </div>
     <div class="card-footer text-body-secondary">
-      2 days ago
+      Created at {{ message.created_at.strftime('%b %d, %Y %H:%M UTC') }}
+      {% if message.is_edited %}
+      &bull; Edited at {{ message.edited_at.strftime('%b %d, %Y %H:%M UTC') }}</div>
+      {% endif %}
     </div>
   </div>
   <div class="card mb-3">
@@ -91,8 +94,11 @@
         {% endif %}
     </div>
     <div class="card-footer text-body-secondary">
-      2 days ago
-    </div>  
+      Created at {{ reply.created_at.strftime('%b %d, %Y %H:%M UTC') }}
+      {% if reply.is_edited %}
+      &bull; Edited at {{ reply.edited_at.strftime('%b %d, %Y %H:%M UTC') }}</div>
+      {% endif %}
+    </div>
   </div>
   {% endfor %}
 </div>

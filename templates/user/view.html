@@ -47,6 +47,9 @@
       </li>
       {% endif %}
     </ul>
+    <div class="card-footer text-body-secondary">
+      Created at {{ user.created_at.strftime('%b %d, %Y %H:%M UTC') }}
+    </div>
 </div>
 <div class="card">
   <h5 class="card-header">

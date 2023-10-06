@@ -66,6 +66,9 @@
       <button type="submit" class="btn btn-primary"><i class="bi bi-envelope-arrow-up"></i> Post</button>
     </form>
   </div>
+  <div class="card-footer text-body-secondary">
+    Created at {{ constellation.created_at.strftime('%b %d, %Y %H:%M UTC') }}
+  </div>
 </div>
 <div class="card">
   <div class="card-header">Posts</div>
@@ -73,7 +76,12 @@
   {% for message in constellation.belonging_messages|reverse %}
   <li class="list-group-item"><a class="link-underline link-underline-opacity-0" href="{{ url_for('message', uuid=message.uuid) }}">{{ message.title }}</a> by 
     <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=message.author_name) }}">@{{ message.author_name }}</a>{% if message.author.is_verified %} <span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span>{% endif %}{% if message.author_name == message.constellation.owner_name %} <span title="This user owns this constellation."><i class="bi bi-person-gear"></i></span>{% endif %}{% if Member.query.filter_by(constellation_name=constellation.name, user_name=message.author_name).one().is_moderator %} <span title="This user moderates this constellation."><i class="bi bi-person-badge"></i></span>{% endif %}
-    <div class="form-text">2 days ago</div>
+    <div class="form-text">
+      Created at {{ message.created_at.strftime('%b %d, %Y %H:%M UTC') }}
+      {% if message.is_edited %}
+      &bull; Edited at {{ message.edited_at.strftime('%b %d, %Y %H:%M UTC') }}</div>
+      {% endif %}
+    </div>
   </li>
   {% endfor %}
   </ul>
