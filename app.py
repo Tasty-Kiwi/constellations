@@ -1,10 +1,9 @@
 # import os
 # import secrets
 # from werkzeug.utils import secure_filename
-from datetime import datetime
+from datetime import datetime, UTC
 import tomllib
 from flask import Flask, redirect, request, flash, render_template, url_for, send_from_directory
-from jinja2 import Environment
 from werkzeug.exceptions import RequestEntityTooLarge
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey, Integer, String, Boolean, Uuid, DateTime
@@ -80,7 +79,7 @@ class User(UserMixin, db.Model):
     #! which conflicts with relationship(s): 'User.owned_constellations' (copies user.name to constellation.owner_name).
     #! https://sqlalche.me/e/20/qzyx
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow())
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.now(tz=UTC))
     owned_constellations: Mapped[List["Constellation"]] = relationship()
     sent_messages: Mapped[List['Message']] = relationship()
     is_member_of: Mapped[List['Member']] = relationship()
@@ -93,7 +92,7 @@ class Constellation(db.Model):
     is_private: Mapped[bool] = mapped_column(Boolean, nullable=False)
     owner_name: Mapped[str] = mapped_column(ForeignKey("user.id"))
     owner: Mapped["User"] = relationship("User", backref="constellation")
-    created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow())
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.now(tz=UTC))
     belonging_messages: Mapped[List['Message']] = relationship()
     belonging_invites: Mapped[List['Invite']] = relationship()
     members: Mapped[List['Member']] = relationship()
@@ -105,7 +104,7 @@ class Message(db.Model):
     author: Mapped['User'] = relationship('User', backref='message')
     title: Mapped[str] = mapped_column(String(128))
     content: Mapped[str] = mapped_column(String(4096))
-    created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow())
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.now(tz=UTC))
     is_edited: Mapped[bool] = mapped_column(Boolean, default=False)
     edited_at: Mapped[DateTime] = mapped_column(DateTime, nullable=True, default=None)
     constellation_name: Mapped[str] = mapped_column(ForeignKey('constellation.name'))
@@ -118,7 +117,7 @@ class Reply(db.Model):
     author_name: Mapped[str] = mapped_column(ForeignKey("user.id"))
     author: Mapped['User'] = relationship('User', backref='reply')
     content: Mapped[str] = mapped_column(String(1024))
-    created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow())
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.now(tz=UTC))
     is_edited: Mapped[bool] = mapped_column(Boolean, default=False)
     edited_at: Mapped[DateTime] = mapped_column(DateTime, nullable=True, default=None)
     constellation_name: Mapped[str] = mapped_column(ForeignKey('constellation.name'))
@@ -129,7 +128,7 @@ class Reply(db.Model):
 class Invite(db.Model):
     __tablename__ = 'invite'
     uuid: Mapped[Uuid] = mapped_column(Uuid, primary_key=True)
-    created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow())
+    created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.now(tz=UTC))
     constellation_name: Mapped[str] = mapped_column(ForeignKey('constellation.name'))
     constellation: Mapped['Constellation'] = relationship('Constellation', backref='invite')
 
@@ -138,7 +137,7 @@ class Member(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_name: Mapped[str] = mapped_column(ForeignKey("user.id"))
     user: Mapped["User"] = relationship("User", backref="member")
-    joined_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.utcnow())
+    joined_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.now(tz=UTC))
     constellation_name: Mapped[str] = mapped_column(ForeignKey('constellation.name'))
     constellation: Mapped['Constellation'] = relationship('Constellation', backref='member')
     is_moderator: Mapped[bool] = mapped_column(Boolean)
@@ -433,7 +432,7 @@ def edit_message(uuid):
     if request.method == 'POST':
         message_content = request.form.get("message_content")[0:4096]
         title = request.form.get("title")
-        db.session.query(Message).filter_by(uuid=uuid).update({Message.content: message_content, Message.title: title, Message.is_edited: True, Message.edited_at: datetime.utcnow()})
+        db.session.query(Message).filter_by(uuid=uuid).update({Message.content: message_content, Message.title: title, Message.is_edited: True, Message.edited_at: datetime.now(tz=UTC)})
         db.session.commit()
 
         flash('Message successfully edited!', category='success')
@@ -449,7 +448,7 @@ def edit_reply(uuid):
         return "Unauthorized", 401
     if request.method == 'POST':
         reply_content = request.form.get("reply_content")[0:1024]
-        db.session.query(Reply).filter_by(uuid=uuid).update({Reply.content: reply_content, Reply.is_edited: True, Reply.edited_at: datetime.utcnow()})
+        db.session.query(Reply).filter_by(uuid=uuid).update({Reply.content: reply_content, Reply.is_edited: True, Reply.edited_at: datetime.now(tz=UTC)})
         db.session.commit()
 
         flash('Message successfully edited!', category='success')

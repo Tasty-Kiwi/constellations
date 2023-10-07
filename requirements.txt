@@ -1,0 +1,6 @@
+markdown2[all]
+werkzeug < 3.0.0 # flask-login doesn't support Flask 3 yet
+flask < 3.0.0 # flask-login doesn't support Flask 3 yet
+flask-login
+flask-sQLAlchemy
+flask-bcrypt
