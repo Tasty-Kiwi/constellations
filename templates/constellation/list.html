@@ -9,7 +9,7 @@
     <a class="link-underline link-underline-opacity-0" href="{{ url_for('user', name=constellation.owner_name) }}">@{{ constellation.owner_name }}</a>{% if constellation.owner.is_verified %} <span title="This user is verified."><i class="bi bi-patch-check text-info"></i></span>{% endif %}
     <p class="fst-italic">{{ constellation.description }}</p>
     <div class="form-text">
-      Created at {{ constellation.created_at.strftime('%b %d, %Y %H:%M UTC') }}
+      Created on {{ constellation.created_at.strftime('%b %d, %Y') }}
     </div>
   </li>
   {% endfor %}

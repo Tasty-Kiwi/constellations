@@ -47,9 +47,9 @@
       </div>
     </div>
     <div class="card-footer text-body-secondary">
-      Created at {{ message.created_at.strftime('%b %d, %Y %H:%M UTC') }}
+      Created <span _="init set my innerHTML to luxon.DateTime.fromISO('{{ message.created_at.isoformat() }}+00:00').toRelative()"></span>
       {% if message.is_edited %}
-      &bull; Edited at {{ message.edited_at.strftime('%b %d, %Y %H:%M UTC') }}</div>
+      &bull; Edited <span _="init set my innerHTML to luxon.DateTime.fromISO('{{ message.edited_at.isoformat() }}+00:00').toRelative()"></span></div>
       {% endif %}
     </div>
   </div>
@@ -94,9 +94,9 @@
         {% endif %}
     </div>
     <div class="card-footer text-body-secondary">
-      Created at {{ reply.created_at.strftime('%b %d, %Y %H:%M UTC') }}
+      Created <span _="init set my innerHTML to luxon.DateTime.fromISO('{{ reply.created_at.isoformat() }}+00:00').toRelative()"></span>
       {% if reply.is_edited %}
-      &bull; Edited at {{ reply.edited_at.strftime('%b %d, %Y %H:%M UTC') }}</div>
+      &bull; Edited <span _="init set my innerHTML to luxon.DateTime.fromISO('{{ reply.edited_at.isoformat() }}+00:00').toRelative()"></span></div>
       {% endif %}
     </div>
   </div>
