@@ -201,6 +201,7 @@ def login():
         user = User.query.filter_by(email=email).first()
         if not user or not bcrypt.check_password_hash(user.password_hash, password):
             flash("Incorrect login details. Please try again.", category="danger")
+            return render_template("login.html")
 
         login_user(user, remember=remember)
         flash(f"Logged in as @{user.id}", category='info')
