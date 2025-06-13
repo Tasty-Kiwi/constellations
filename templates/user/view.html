@@ -28,11 +28,11 @@
     {{ markdowner.convert(user.bio).replace('<table>', '<table class="table table-sm">')|safe}}
   </div>
     <ul class="list-group list-group-flush">
+      {% if user.pronouns|length > 0 %}
+      <li class="list-group-item"><i class="bi bi-person"></i> {{ user.pronouns }}</li>
+      {% endif %}
       {% if user.location|length > 0 %}
       <li class="list-group-item"><i class="bi bi-geo-alt"></i> {{ user.location }}</li>
-      {% endif %}
-      {% if user.blabber_url|length > 0 %}
-      <li class="list-group-item"><a class="link-underline link-underline-opacity-0" href="{{ user.blabber_url }}">{% include 'blabber-logo.svg.html' %} Blabber</a></li>
       {% endif %}
       {% if user.website|length > 0 %}
       <li class="list-group-item"><a class="link-underline link-underline-opacity-0" href="{{ user.website }}"><i class="bi bi-globe-americas"></i> Website</a></li>

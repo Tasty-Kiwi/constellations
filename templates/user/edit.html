@@ -32,16 +32,16 @@
       <div class="form-text">Your email is used for security purposes. It is not shared.</div>
   </div>
   <div class="mb-3">
-    <label for="blabber" class="form-label">{% include 'blabber-logo.svg.html' %} Blabber</label>
+    <label for="pronouns" class="form-label"><i class="bi bi-person"></i> Pronouns</label>
     <input
       type="text"
       class="form-control"
       aria-describedby="basic-addon1"
-      name="blabber_url"
-      value="{{ user.blabber_url }}"
+      name="pronouns"
+      value="{{ user.pronouns }}"
       maxlength="64"
       />
-      <div class="form-text">Constellations works best with <a class="link-underline link-underline-opacity-0" href="https://blabber.fly.dev/" target="_blank">Blabber</a>.</div>
+      <div class="form-text">Your pronouns. Up to 64 characters.</div>
   </div>
   <div class="mb-3">
     <label for="location" class="form-label"><i class="bi bi-geo-alt"></i> Location</label>

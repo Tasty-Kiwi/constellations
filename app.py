@@ -72,7 +72,7 @@ class User(UserMixin, db.Model):
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
     bio: Mapped[str] = mapped_column(String(512))
-    blabber_url: Mapped[str] = mapped_column(String(64), default="")
+    pronouns: Mapped[str] = mapped_column(String(64), default="")
     location: Mapped[str] = mapped_column(String(64), default="")
     website: Mapped[str] = mapped_column(String(128), default="")
     #! Warning: relationship 'Constellation.owner' will copy column user.name to column constellation.owner_name,
@@ -179,7 +179,7 @@ def register():
             email=request.form["email"],
             password_hash=bcrypt.generate_password_hash(request.form["password"]).decode('utf-8'),
             bio="Edit me!",
-            blabber_url="",
+            pronouns="",
             location="",
             website=""
         )
@@ -488,11 +488,11 @@ def edit_user():
     if request.method == 'POST':
         bio = request.form.get("bio")[0:512]
         email = request.form.get("email")
-        blabber_url = request.form.get("blabber_url")[0:64]
+        pronouns = request.form.get("pronouns")[0:64]
         website = request.form.get("website")[0:128]
         location = request.form.get("location")[0:64]
 
-        db.session.query(User).filter_by(id=user.id).update({User.bio: bio, User.email: email, User.blabber_url: blabber_url, User.website: website, User.location: location})
+        db.session.query(User).filter_by(id=user.id).update({User.bio: bio, User.email: email, User.pronouns: pronouns, User.website: website, User.location: location})
         db.session.commit()
 
         flash('User successfully edited!', category='success')
