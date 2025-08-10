@@ -6,3 +6,5 @@ I wanted to learn how to make a web app with Flask, SQLAlchemy and HTMX with hyp
 
 ## License
 MIT No Attribution (MIT-0)
+
+Credit is appreciated, but not required.
